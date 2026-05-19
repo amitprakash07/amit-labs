@@ -9,6 +9,7 @@
 
 #include "color.h"
 #include "graphics_common.h"
+#include "vector4.h"
 
 namespace amit::graphics
 {
@@ -49,7 +50,8 @@ namespace amit::graphics
     {
     public:
         RenderPrimitive()
-            : object_label_(RenderPrimitiveType::kPoint)
+            : point_vertex_{}
+            , object_label_(RenderPrimitiveType::kPoint)
         {
         }
 
@@ -84,7 +86,8 @@ namespace amit::graphics
     {
     public:
         RenderPrimitive()
-            : object_label_(RenderPrimitiveType::kLine)
+            : end_points_{}
+            , object_label_(RenderPrimitiveType::kLine)
         {
         }
 

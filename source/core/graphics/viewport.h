@@ -81,10 +81,17 @@ namespace amit::graphics
         }
 
     private:
-        geometry::Point3D      origin_;
-        Width  width_;
-        Height height_;
+        geometry::Point3D origin_;
+        Width             width_;
+        Height            height_;
     };
+
+    inline PixelCoordinate NdcToScreen(const Viewport& viewport, const maths::Vector3& ndc)
+    {
+        const float x = (ndc.x + 1.0f) * 0.5f * static_cast<float>(viewport.GetWidth().value);
+        const float y = (1.0f - (ndc.y)) * 0.5f * static_cast<float>(viewport.GetHeight().value);
+        return PixelCoordinate{};
+    }
 }  // namespace amit::graphics
 
-#endif
+#endif  // CORE_GRAPHICS_VIEWPORT_H_
