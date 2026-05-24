@@ -11,6 +11,7 @@ Link http://www.euclideanspace.com/
 #include "plane.h"
 #include "quaternion.h"
 #include "vector3.h"
+#include "vector4.h"
 
 using namespace amit::maths;
 
@@ -282,6 +283,20 @@ Vector3 Matrix4x4::Mul(const Vector3& vector, bool is_vector) const
     }
 
     return translateVector;
+}
+
+Vector4 Matrix4x4::Mul(const Vector4& vector) const
+{
+    const float* const components = vector.AsFloatArray();
+    const float        x          = components[0];
+    const float        y          = components[1];
+    const float        z          = components[2];
+    const float        w          = components[3];
+
+    return Vector4{x * m_00 + y * m_10 + z * m_20 + w * m_30,
+                   x * m_01 + y * m_11 + z * m_21 + w * m_31,
+                   x * m_02 + y * m_12 + z * m_22 + w * m_32,
+                   x * m_03 + y * m_13 + z * m_23 + w * m_33};
 }
 
 void Matrix4x4::operator*=(const Matrix4x4& other)

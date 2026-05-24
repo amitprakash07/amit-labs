@@ -10,8 +10,8 @@ namespace amit::graphics
 {
     struct MeshData
     {
-        std::vector<VertexAttributes>  vertices;
-        std::vector<std::uint32_t>     indices;
+        std::vector<VertexAttributes<LocalSpace>> vertices;
+        std::vector<std::uint32_t>                 indices;
     };
 
 }  // namespace amit::graphics

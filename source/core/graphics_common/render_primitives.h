@@ -13,9 +13,21 @@
 
 namespace amit::graphics
 {
+    using LocalSpace  = geometry::Point3D;
+    using WorldSpace  = maths::Vector3;
+    using ClipSpace   = maths::Vector4;
+    using NDCSpace    = maths::Vector3;
+    using ScreenSpace = geometry::Point3D;  // x,y and z for the depth buffer
+
+    template <typename TCoordinateSpace>
+    concept CoordinateSpaceConcept =
+        std::is_same_v<TCoordinateSpace, LocalSpace> || std::is_same_v<TCoordinateSpace, WorldSpace> ||
+        std::is_same_v<TCoordinateSpace, ClipSpace> || std::is_same_v<TCoordinateSpace, NDCSpace>;
+
+    template <CoordinateSpaceConcept CoordinateSpace>
     struct VertexAttributes
     {
-        geometry::Point3D      position;
+        CoordinateSpace        position;
         graphics::Rgb8         color;
         graphics::UVCoordinate uv;
     };
@@ -43,25 +55,29 @@ namespace amit::graphics
     }
 
     template <RenderPrimitiveType PrimitiveType>
-    class RenderPrimitive;
+    class RenderPrimitive
+    {
+    protected:
+        RenderPrimitive() = default;
+    };
 
-    template <>
-    class RenderPrimitive<RenderPrimitiveType::kPoint>
+    template <CoordinateSpaceConcept CoordinateSpace>
+    class RenderPrimitivePoint : public RenderPrimitive<RenderPrimitiveType::kPoint>
     {
     public:
-        RenderPrimitive()
+        RenderPrimitivePoint()
             : point_vertex_{}
             , object_label_(RenderPrimitiveType::kPoint)
         {
         }
 
-        RenderPrimitive(const VertexAttributes& point)
+        RenderPrimitivePoint(const VertexAttributes<CoordinateSpace>& point)
             : point_vertex_{point}
             , object_label_(RenderPrimitiveType::kPoint)
         {
         }
 
-        const VertexAttributes& PointVertex() const
+        const VertexAttributes<CoordinateSpace>& PointVertex() const
         {
             return point_vertex_;
         }
@@ -77,44 +93,45 @@ namespace amit::graphics
         }
 
     private:
-        VertexAttributes                 point_vertex_;
-        ObjectLabel<RenderPrimitiveType> object_label_;
+        VertexAttributes<CoordinateSpace> point_vertex_;
+        ObjectLabel<RenderPrimitiveType>  object_label_;
     };
 
-    template <>
-    class RenderPrimitive<RenderPrimitiveType::kLine>
+    template <CoordinateSpaceConcept CoordinateSpace>
+    class RenderPrimitiveLine : public RenderPrimitive<RenderPrimitiveType::kLine>
     {
     public:
-        RenderPrimitive()
+        RenderPrimitiveLine()
             : end_points_{}
             , object_label_(RenderPrimitiveType::kLine)
         {
         }
 
-        RenderPrimitive(const VertexAttributes& start, const VertexAttributes& end)
+        RenderPrimitiveLine(const VertexAttributes<CoordinateSpace>& start,
+                            const VertexAttributes<CoordinateSpace>& end)
             : end_points_{start, end}
             , object_label_(RenderPrimitiveType::kLine)
 
         {
         }
 
-        RenderPrimitive(const std::array<VertexAttributes, 2>& end_points)
+        RenderPrimitiveLine(const std::array<VertexAttributes<CoordinateSpace>, 2>& end_points)
             : end_points_(end_points)
             , object_label_(RenderPrimitiveType::kLine)
         {
         }
 
-        const VertexAttributes& Start() const
+        const VertexAttributes<CoordinateSpace>& Start() const
         {
             return end_points_[0];
         }
 
-        const VertexAttributes& End() const
+        const VertexAttributes<CoordinateSpace>& End() const
         {
             return end_points_[1];
         }
 
-        std::array<VertexAttributes, 2> GetEndPoints() const
+        std::array<VertexAttributes<CoordinateSpace>, 2> GetEndPoints() const
         {
             return end_points_;
         }
@@ -130,57 +147,59 @@ namespace amit::graphics
         }
 
     private:
-        std::array<VertexAttributes, 2>  end_points_;
-        ObjectLabel<RenderPrimitiveType> object_label_;
+        std::array<VertexAttributes<CoordinateSpace>, 2> end_points_;
+        ObjectLabel<RenderPrimitiveType>                 object_label_;
     };
 
-    template <>
-    class RenderPrimitive<RenderPrimitiveType::kTriangle>
+    template <CoordinateSpaceConcept CoordinateSpace>
+    class RenderPrimitiveTriangle : public RenderPrimitive<RenderPrimitiveType::kTriangle>
     {
     public:
-        RenderPrimitive(const VertexAttributes& vert_a, const VertexAttributes& vert_b, const VertexAttributes& vert_c)
+        RenderPrimitiveTriangle(const VertexAttributes<CoordinateSpace>& vert_a,
+                                const VertexAttributes<CoordinateSpace>& vert_b,
+                                const VertexAttributes<CoordinateSpace>& vert_c)
             : vertices_{vert_a, vert_b, vert_c}
             , object_label_(RenderPrimitiveType::kTriangle)
         {
         }
 
-        RenderPrimitive(const std::array<VertexAttributes, 3>& vertices)
+        RenderPrimitiveTriangle(const std::array<VertexAttributes<CoordinateSpace>, 3>& vertices)
             : vertices_(vertices)
             , object_label_(RenderPrimitiveType::kTriangle)
         {
         }
 
-        const VertexAttributes& VertA() const
+        const VertexAttributes<CoordinateSpace>& VertA() const
         {
             return vertices_[0];
         }
 
-        const VertexAttributes& VertB() const
+        const VertexAttributes<CoordinateSpace>& VertB() const
         {
             return vertices_[1];
         }
 
-        const VertexAttributes& VertC() const
+        const VertexAttributes<CoordinateSpace>& VertC() const
         {
             return vertices_[2];
         }
 
-        RenderPrimitive<RenderPrimitiveType::kLine> Edge_0() const
+        RenderPrimitiveLine<CoordinateSpace> Edge_0() const
         {
             return {vertices_[0], vertices_[1]};
         }
 
-        RenderPrimitive<RenderPrimitiveType::kLine> Edge_1() const
+        RenderPrimitiveLine<CoordinateSpace> Edge_1() const
         {
             return {vertices_[1], vertices_[2]};
         }
 
-        RenderPrimitive<RenderPrimitiveType::kLine> Edge_2() const
+        RenderPrimitiveLine<CoordinateSpace> Edge_2() const
         {
             return {vertices_[2], vertices_[0]};
         }
 
-        std::array<VertexAttributes, 3> GetVertices() const
+        std::array<VertexAttributes<CoordinateSpace>, 3> GetVertices() const
         {
             return vertices_;
         }
@@ -196,10 +215,9 @@ namespace amit::graphics
         }
 
     private:
-        std::array<VertexAttributes, 3>  vertices_;
-        ObjectLabel<RenderPrimitiveType> object_label_;
+        std::array<VertexAttributes<CoordinateSpace>, 3> vertices_;
+        ObjectLabel<RenderPrimitiveType>                 object_label_;
     };
-
 }  // namespace amit::graphics
 
 #endif

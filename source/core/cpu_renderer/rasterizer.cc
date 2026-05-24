@@ -4,157 +4,16 @@
 #include "core/graphics_common/color.h"
 #include "core/graphics_common/render_primitives.h"
 #include "core/maths/geometry/geometry.h"
-
-// Triangle
-template <>
-void amit::render::cpu::Rasterizer::Rasterize<amit::graphics::RenderPrimitiveType::kTriangle>(
-    const graphics::RenderConfig&                                                          render_config,
-    graphics::RenderState&                                                                 render_state,
-    graphics::RenderFrameStats&                                                            render_frame_stats,
-    graphics::DrawOptions&                                                                 draw_options,
-    const amit::graphics::RenderPrimitive<amit::graphics::RenderPrimitiveType::kTriangle>& triangle,
-    const FragmentShader&                                                                  fragment_shader) const
-{
-    graphics::ScopedDrawCallStats draw_stats_scope(render_frame_stats, draw_options.GetStatsCollectionLevel(), triangle);
-
-    amit::geometry::AxisAlignedBoundingBox bounding_box;
-    bounding_box.Expand({triangle.VertA().position, triangle.VertB().position, triangle.VertC().position});
-
-    geometry::Point3D viewport_clamped_min = render_config.GetViewport().ClampToView(bounding_box.GetMin());
-    geometry::Point3D viewport_clamped_max = render_config.GetViewport().ClampToView(bounding_box.GetMax());
-
-    uint32_t x_start = static_cast<uint32_t>(viewport_clamped_min.x);
-    uint32_t x_end   = static_cast<uint32_t>(viewport_clamped_max.x);
-
-    uint32_t y_start = static_cast<uint32_t>(viewport_clamped_min.y);
-    uint32_t y_end   = static_cast<uint32_t>(viewport_clamped_max.y);
-
-    using EdgeFunctionValue = float;
-
-    const std::array<geometry::ImplicitLineCoefficients, 3> triangle_edge_coefficients{
-        geometry::MakeImplicitLineCoefficients(triangle.Edge_0().Start().position, triangle.Edge_0().End().position),
-        geometry::MakeImplicitLineCoefficients(triangle.Edge_1().Start().position, triangle.Edge_1().End().position),
-        geometry::MakeImplicitLineCoefficients(triangle.Edge_2().Start().position, triangle.Edge_2().End().position)};
-
-    std::array<EdgeFunctionValue, 3> triangle_edge_function_value_row_start{
-        geometry::Orient2D(triangle_edge_coefficients[0], geometry::Point3D(x_start, y_start)),
-        geometry::Orient2D(triangle_edge_coefficients[1], geometry::Point3D(x_start, y_start)),
-        geometry::Orient2D(triangle_edge_coefficients[2], geometry::Point3D(x_start, y_start))};
-
-    if (draw_options.GetDrawMode() == graphics::PrimitiveDrawMode::kSolid)
-    {
-        for (uint32_t y_iter = y_start; y_iter < y_end; y_iter++)
-        {
-            std::array<EdgeFunctionValue, 3> edge_value           = triangle_edge_function_value_row_start;
-            bool                             is_first_or_last_row = (y_iter == y_start || y_iter == y_end);
-
-            for (uint32_t x_iter = x_start; x_iter < x_end; x_iter++)
-            {
-                bool is_first_or_last_column = (x_iter == x_start || x_iter == x_end);
-
-                if ((edge_value[0] < 0 && edge_value[1] < 0 && edge_value[2] < 0) ||
-                    (edge_value[0] >= 0 && edge_value[1] >= 0 && edge_value[2] >= 0))
-                {
-                    geometry::BaryCentricCoordinate barycentric_coordinate =
-                        geometry::CalculateBaryCentricCoordinate(triangle.VertA().position,
-                                                                 triangle.VertB().position,
-                                                                 triangle.VertC().position,
-                                                                 geometry::Point3D(x_iter, y_iter));
-
-                    float interpolated_depth =
-                        triangle.VertA().position.z * barycentric_coordinate.alpha +
-                        triangle.VertB().position.z * barycentric_coordinate.beta +
-                        triangle.VertC().position.z * barycentric_coordinate.gamma;
-
-                    if (render_state.TryUpdateDepth(graphics::ImageCoordinate{x_iter, y_iter}, interpolated_depth))
-                    {
-                        const graphics::FloatColor color_a = triangle.VertA().color.ToFloatColor();
-                        const graphics::FloatColor color_b = triangle.VertB().color.ToFloatColor();
-                        const graphics::FloatColor color_c = triangle.VertC().color.ToFloatColor();
-
-                        amit::graphics::FloatColor interpolated_color{
-                            color_a.r * barycentric_coordinate.alpha + color_b.r * barycentric_coordinate.beta +
-                                color_c.r * barycentric_coordinate.gamma,
-                            color_a.g * barycentric_coordinate.alpha + color_b.g * barycentric_coordinate.beta +
-                                color_c.g * barycentric_coordinate.gamma,
-                            color_a.b * barycentric_coordinate.alpha + color_b.b * barycentric_coordinate.beta +
-                                color_c.b * barycentric_coordinate.gamma};
-
-                        const graphics::UVCoordinate interpolated_uv = graphics::InterpolateUV(
-                            triangle.VertA().uv, triangle.VertB().uv, triangle.VertC().uv, barycentric_coordinate);
-
-                        RasterizedFragment primitive_fragment{
-                            .coordinate             = {x_iter, y_iter},
-                            .color                  = interpolated_color,
-                            .uv                     = interpolated_uv,
-                            .barycentric_coordinate = barycentric_coordinate,
-                            .depth                  = interpolated_depth,
-                            .fragment_kind          = RasterizedFragment::Kind::Primitive};
-
-                        RenderFragment(draw_stats_scope, primitive_fragment, fragment_shader);
-                    }
-                }
-
-                if (draw_options.GetDrawDebugFlag() == graphics::DrawDebugFlag::kWireframeBoundingBox &&
-                    (is_first_or_last_column || is_first_or_last_row))
-                {
-                    RasterizedFragment bounding_box_fragment{
-                        .coordinate    = {x_iter, y_iter},
-                        .color         = graphics::kRgb8ColorGreen.ToFloatColor(),
-                        .fragment_kind = RasterizedFragment::Kind::BoundingBox};
-                    RenderFragment(draw_stats_scope, bounding_box_fragment, fragment_shader);
-                }
-
-                edge_value[0] += triangle_edge_coefficients[0].a;
-                edge_value[1] += triangle_edge_coefficients[1].a;
-                edge_value[2] += triangle_edge_coefficients[2].a;
-            }
-
-            triangle_edge_function_value_row_start[0] += triangle_edge_coefficients[0].b;
-            triangle_edge_function_value_row_start[1] += triangle_edge_coefficients[1].b;
-            triangle_edge_function_value_row_start[2] += triangle_edge_coefficients[2].b;
-        }
-    }
-    else if (draw_options.GetDrawMode() == graphics::PrimitiveDrawMode::kNone &&
-             draw_options.GetDrawDebugFlag() == graphics::DrawDebugFlag::kWireframeBoundingBox)
-    {
-        for (uint32_t y_iter = y_start; y_iter <= y_end; y_iter++)
-        {
-            bool is_first_or_last_row = (y_iter == y_start || y_iter == y_end);
-
-            for (uint32_t x_iter = x_start; x_iter <= x_end; x_iter++)
-            {
-                bool is_first_or_last_column = (x_iter == x_start || x_iter == x_end);
-
-                if (is_first_or_last_column || is_first_or_last_row)
-                {
-                    RasterizedFragment bounding_box_fragment{
-                        .coordinate    = {x_iter, y_iter},
-                        .color         = graphics::kRgb8ColorGreen.ToFloatColor(),
-                        .fragment_kind = RasterizedFragment::Kind::BoundingBox};
-                    RenderFragment(draw_stats_scope, bounding_box_fragment, fragment_shader);
-                }
-            }
-        }
-    }
-    else if (draw_options.GetDrawMode() == graphics::PrimitiveDrawMode::kWireframe)
-    {
-        Rasterize(render_config, render_state, render_frame_stats, draw_options, triangle.Edge_0(), fragment_shader);
-        Rasterize(render_config, render_state, render_frame_stats, draw_options, triangle.Edge_1(), fragment_shader);
-        Rasterize(render_config, render_state, render_frame_stats, draw_options, triangle.Edge_2(), fragment_shader);
-    }
-
-}
+#include "core/graphics/transform.h"
 
 // Line Segment
 template <>
-void amit::render::cpu::Rasterizer::Rasterize<amit::graphics::RenderPrimitiveType::kLine>(
-    const graphics::RenderConfig&                                                      render_config,
-    graphics::RenderState&                                                             render_state,
-    graphics::RenderFrameStats&                                                        render_frame_stats,
-    graphics::DrawOptions&                                                             draw_options,
-    const amit::graphics::RenderPrimitive<amit::graphics::RenderPrimitiveType::kLine>& line,
-    const FragmentShader&                                                              fragment_shader) const
+void amit::render::cpu::Rasterizer::Rasterize(const graphics::RenderConfig& render_config,
+                                              graphics::RenderState&        render_state,
+                                              graphics::RenderFrameStats&   render_frame_stats,
+                                              graphics::DrawOptions&        draw_options,
+                                              const amit::graphics::RenderPrimitiveLine<graphics::ScreenSpace>& line,
+                                              const FragmentShader& fragment_shader) const
 {
     graphics::ScopedDrawCallStats draw_stats_scope(render_frame_stats, draw_options.GetStatsCollectionLevel(), line);
 
@@ -194,10 +53,10 @@ void amit::render::cpu::Rasterizer::Rasterize<amit::graphics::RenderPrimitiveTyp
             {
                 float pixel_coordinate_y = y1 + (slope * (static_cast<float>(pixel_coordinate_x) - x1));
 
-                RasterizedFragment primitive_fragment{
-                    .coordinate    = {static_cast<uint32_t>(pixel_coordinate_x), static_cast<uint32_t>(pixel_coordinate_y)},
-                    .color         = graphics::kRgb8ColorRed.ToFloatColor(),
-                    .fragment_kind = RasterizedFragment::Kind::Primitive};
+                RasterizedFragment primitive_fragment{.coordinate    = {static_cast<uint32_t>(pixel_coordinate_x),
+                                                                        static_cast<uint32_t>(pixel_coordinate_y)},
+                                                      .color         = graphics::kRgb8ColorRed.ToFloatColor(),
+                                                      .fragment_kind = RasterizedFragment::Kind::Primitive};
                 RenderFragment(draw_stats_scope, primitive_fragment, fragment_shader);
             }
         }
@@ -303,5 +162,163 @@ void amit::render::cpu::Rasterizer::Rasterize<amit::graphics::RenderPrimitiveTyp
     {
         RasterizeEdgeUsingMidPointAlgo();
     }
+}
 
+// Triangle
+template <>
+void amit::render::cpu::Rasterizer::Rasterize(
+    const graphics::RenderConfig&                                         render_config,
+    graphics::RenderState&                                                render_state,
+    graphics::RenderFrameStats&                                           render_frame_stats,
+    graphics::DrawOptions&                                                draw_options,
+    const amit::graphics::RenderPrimitiveTriangle<graphics::ScreenSpace>& triangle,
+    const FragmentShader&                                                 fragment_shader) const
+{
+    graphics::ScopedDrawCallStats draw_stats_scope(
+        render_frame_stats, draw_options.GetStatsCollectionLevel(), triangle);
+
+    amit::geometry::AxisAlignedBoundingBox bounding_box;
+    bounding_box.Expand({triangle.VertA().position, triangle.VertB().position, triangle.VertC().position});
+
+    geometry::Point3D viewport_clamped_min = render_config.GetViewport().ClampToView(bounding_box.GetMin());
+    geometry::Point3D viewport_clamped_max = render_config.GetViewport().ClampToView(bounding_box.GetMax());
+
+    uint32_t x_start = static_cast<uint32_t>(viewport_clamped_min.x);
+    uint32_t x_end   = static_cast<uint32_t>(viewport_clamped_max.x);
+
+    uint32_t y_start = static_cast<uint32_t>(viewport_clamped_min.y);
+    uint32_t y_end   = static_cast<uint32_t>(viewport_clamped_max.y);
+
+    using EdgeFunctionValue = float;
+
+    const std::array<geometry::ImplicitLineCoefficients, 3> triangle_edge_coefficients{
+        geometry::MakeImplicitLineCoefficients(triangle.Edge_0().Start().position, triangle.Edge_0().End().position),
+        geometry::MakeImplicitLineCoefficients(triangle.Edge_1().Start().position, triangle.Edge_1().End().position),
+        geometry::MakeImplicitLineCoefficients(triangle.Edge_2().Start().position, triangle.Edge_2().End().position)};
+
+    std::array<EdgeFunctionValue, 3> triangle_edge_function_value_row_start{
+        geometry::Orient2D(triangle_edge_coefficients[0], geometry::Point3D(x_start, y_start)),
+        geometry::Orient2D(triangle_edge_coefficients[1], geometry::Point3D(x_start, y_start)),
+        geometry::Orient2D(triangle_edge_coefficients[2], geometry::Point3D(x_start, y_start))};
+
+    if (draw_options.GetDrawMode() == graphics::PrimitiveDrawMode::kSolid)
+    {
+        for (uint32_t y_iter = y_start; y_iter < y_end; y_iter++)
+        {
+            std::array<EdgeFunctionValue, 3> edge_value           = triangle_edge_function_value_row_start;
+            bool                             is_first_or_last_row = (y_iter == y_start || y_iter == y_end);
+
+            for (uint32_t x_iter = x_start; x_iter < x_end; x_iter++)
+            {
+                bool is_first_or_last_column = (x_iter == x_start || x_iter == x_end);
+
+                if ((edge_value[0] < 0 && edge_value[1] < 0 && edge_value[2] < 0) ||
+                    (edge_value[0] >= 0 && edge_value[1] >= 0 && edge_value[2] >= 0))
+                {
+                    geometry::BaryCentricCoordinate barycentric_coordinate =
+                        geometry::CalculateBaryCentricCoordinate(triangle.VertA().position,
+                                                                 triangle.VertB().position,
+                                                                 triangle.VertC().position,
+                                                                 geometry::Point3D(x_iter, y_iter));
+
+                    float interpolated_depth = triangle.VertA().position.z * barycentric_coordinate.alpha +
+                                               triangle.VertB().position.z * barycentric_coordinate.beta +
+                                               triangle.VertC().position.z * barycentric_coordinate.gamma;
+
+                    if (render_state.TryUpdateDepth(graphics::ImageCoordinate{x_iter, y_iter}, interpolated_depth))
+                    {
+                        const graphics::FloatColor color_a = triangle.VertA().color.ToFloatColor();
+                        const graphics::FloatColor color_b = triangle.VertB().color.ToFloatColor();
+                        const graphics::FloatColor color_c = triangle.VertC().color.ToFloatColor();
+
+                        amit::graphics::FloatColor interpolated_color{
+                            color_a.r * barycentric_coordinate.alpha + color_b.r * barycentric_coordinate.beta +
+                                color_c.r * barycentric_coordinate.gamma,
+                            color_a.g * barycentric_coordinate.alpha + color_b.g * barycentric_coordinate.beta +
+                                color_c.g * barycentric_coordinate.gamma,
+                            color_a.b * barycentric_coordinate.alpha + color_b.b * barycentric_coordinate.beta +
+                                color_c.b * barycentric_coordinate.gamma};
+
+                        const graphics::UVCoordinate interpolated_uv = graphics::InterpolateUV(
+                            triangle.VertA().uv, triangle.VertB().uv, triangle.VertC().uv, barycentric_coordinate);
+
+                        RasterizedFragment primitive_fragment{.coordinate             = {x_iter, y_iter},
+                                                              .color                  = interpolated_color,
+                                                              .uv                     = interpolated_uv,
+                                                              .barycentric_coordinate = barycentric_coordinate,
+                                                              .depth                  = interpolated_depth,
+                                                              .fragment_kind = RasterizedFragment::Kind::Primitive};
+
+                        RenderFragment(draw_stats_scope, primitive_fragment, fragment_shader);
+                    }
+                }
+
+                if (draw_options.GetDrawDebugFlag() == graphics::DrawDebugFlag::kWireframeBoundingBox &&
+                    (is_first_or_last_column || is_first_or_last_row))
+                {
+                    RasterizedFragment bounding_box_fragment{.coordinate    = {x_iter, y_iter},
+                                                             .color         = graphics::kRgb8ColorGreen.ToFloatColor(),
+                                                             .fragment_kind = RasterizedFragment::Kind::BoundingBox};
+                    RenderFragment(draw_stats_scope, bounding_box_fragment, fragment_shader);
+                }
+
+                edge_value[0] += triangle_edge_coefficients[0].a;
+                edge_value[1] += triangle_edge_coefficients[1].a;
+                edge_value[2] += triangle_edge_coefficients[2].a;
+            }
+
+            triangle_edge_function_value_row_start[0] += triangle_edge_coefficients[0].b;
+            triangle_edge_function_value_row_start[1] += triangle_edge_coefficients[1].b;
+            triangle_edge_function_value_row_start[2] += triangle_edge_coefficients[2].b;
+        }
+    }
+    else if (draw_options.GetDrawMode() == graphics::PrimitiveDrawMode::kNone &&
+             draw_options.GetDrawDebugFlag() == graphics::DrawDebugFlag::kWireframeBoundingBox)
+    {
+        for (uint32_t y_iter = y_start; y_iter <= y_end; y_iter++)
+        {
+            bool is_first_or_last_row = (y_iter == y_start || y_iter == y_end);
+
+            for (uint32_t x_iter = x_start; x_iter <= x_end; x_iter++)
+            {
+                bool is_first_or_last_column = (x_iter == x_start || x_iter == x_end);
+
+                if (is_first_or_last_column || is_first_or_last_row)
+                {
+                    RasterizedFragment bounding_box_fragment{.coordinate    = {x_iter, y_iter},
+                                                             .color         = graphics::kRgb8ColorGreen.ToFloatColor(),
+                                                             .fragment_kind = RasterizedFragment::Kind::BoundingBox};
+                    RenderFragment(draw_stats_scope, bounding_box_fragment, fragment_shader);
+                }
+            }
+        }
+    }
+    else if (draw_options.GetDrawMode() == graphics::PrimitiveDrawMode::kWireframe)
+    {
+        Rasterize(render_config, render_state, render_frame_stats, draw_options, triangle.Edge_0(), fragment_shader);
+        Rasterize(render_config, render_state, render_frame_stats, draw_options, triangle.Edge_1(), fragment_shader);
+        Rasterize(render_config, render_state, render_frame_stats, draw_options, triangle.Edge_2(), fragment_shader);
+    }
+}
+
+// Line - Clip-Space
+template <>
+void amit::render::cpu::Rasterizer::Rasterize(const graphics::RenderConfig& render_config,
+                                              graphics::RenderState&        render_state,
+                                              graphics::RenderFrameStats&   render_frame_stats,
+                                              graphics::DrawOptions&        draw_options,
+                                              const amit::graphics::RenderPrimitiveLine<graphics::ClipSpace>& line,
+                                              const FragmentShader& fragment_shader) const
+{
+}
+// Triangle - Clip Space
+template <>
+void amit::render::cpu::Rasterizer::Rasterize(
+    const graphics::RenderConfig&                                       render_config,
+    graphics::RenderState&                                              render_state,
+    graphics::RenderFrameStats&                                         render_frame_stats,
+    graphics::DrawOptions&                                              draw_options,
+    const amit::graphics::RenderPrimitiveTriangle<graphics::ClipSpace>& triangle,
+    const FragmentShader&                                               fragment_shader) const
+{
 }

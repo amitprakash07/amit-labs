@@ -6,6 +6,7 @@
 
 #include "core/graphics_common/graphics_common.h"
 #include "core/maths/geometry/point.h"
+#include "vector3.h"
 
 namespace amit::graphics
 {
@@ -85,13 +86,6 @@ namespace amit::graphics
         Width             width_;
         Height            height_;
     };
-
-    inline PixelCoordinate NdcToScreen(const Viewport& viewport, const maths::Vector3& ndc)
-    {
-        const float x = (ndc.x + 1.0f) * 0.5f * static_cast<float>(viewport.GetWidth().value);
-        const float y = (1.0f - (ndc.y)) * 0.5f * static_cast<float>(viewport.GetHeight().value);
-        return PixelCoordinate{};
-    }
 }  // namespace amit::graphics
 
 #endif  // CORE_GRAPHICS_VIEWPORT_H_

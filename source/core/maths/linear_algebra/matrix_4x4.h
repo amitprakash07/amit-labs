@@ -29,6 +29,7 @@
 */
 
 #include "vector3.h"
+#include "vector4.h"
 
 namespace amit::geometry
 {
@@ -54,6 +55,7 @@ namespace amit::maths
         Matrix4x4        operator*(float scalar) const;
         Matrix4x4        operator*(Matrix4x4 other) const;
         Vector3          Mul(const Vector3& vector, bool is_vector = false) const;
+        Vector4          Mul(const Vector4& vector) const;
         void             operator*=(const Matrix4x4& other);
         Matrix4x4        GetTranspose() const;
         void             Transpose();

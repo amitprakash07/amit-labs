@@ -15,22 +15,24 @@ int main(int argc, char* argv[])
 {
     amit::graphics::Viewport viewport({.value = 800}, {.value = 600});
 
-    auto make_vertex = [&viewport](const amit::geometry::Point3D& position, const amit::graphics::Rgb8& color) {
+    auto make_vertex_in_screen_space = [&viewport](const amit::geometry::Point3D& position,
+                                                   const amit::graphics::Rgb8&    color) {
         const float uv_x = position.x / static_cast<float>(viewport.GetWidth().value);
         const float uv_y = position.y / static_cast<float>(viewport.GetHeight().value);
 
-        return amit::graphics::VertexAttributes{.position = position, .color = color, .uv = {uv_x, uv_y}};
+        return amit::graphics::VertexAttributes<amit::graphics::ScreenSpace>{
+            .position = position, .color = color, .uv = {uv_x, uv_y}};
     };
 
-    amit::graphics::RenderPrimitive<amit::graphics::RenderPrimitiveType::kTriangle> screen_space_triangle_1{
-        make_vertex(amit::geometry::Point3D{500u, 100u, 10u}, amit::graphics::kRgb8ColorRed),
-        make_vertex(amit::geometry::Point3D{300u, 500u, 10u}, amit::graphics::kRgb8ColorGreen),
-        make_vertex(amit::geometry::Point3D{700u, 500u, 10u}, amit::graphics::kRgb8ColorBlue)};
+    amit::graphics::RenderPrimitiveTriangle<amit::graphics::ScreenSpace> screen_space_triangle_1{
+        make_vertex_in_screen_space(amit::geometry::Point3D{500u, 100u, 10u}, amit::graphics::kRgb8ColorRed),
+        make_vertex_in_screen_space(amit::geometry::Point3D{300u, 500u, 10u}, amit::graphics::kRgb8ColorGreen),
+        make_vertex_in_screen_space(amit::geometry::Point3D{700u, 500u, 10u}, amit::graphics::kRgb8ColorBlue)};
 
-    amit::graphics::RenderPrimitive<amit::graphics::RenderPrimitiveType::kTriangle> screen_space_triangle_2{
-        make_vertex(amit::geometry::Point3D{200u, 200u, 20u}, amit::graphics::kRgb8ColorYellow),
-        make_vertex(amit::geometry::Point3D{200u, 550u, 20u}, amit::graphics::kRgb8ColorRed),
-        make_vertex(amit::geometry::Point3D{500u, 550u, 20u}, amit::graphics::kRgb8ColorYellow)};
+    amit::graphics::RenderPrimitiveTriangle<amit::graphics::ScreenSpace> screen_space_triangle_2{
+        make_vertex_in_screen_space(amit::geometry::Point3D{200u, 200u, 20u}, amit::graphics::kRgb8ColorYellow),
+        make_vertex_in_screen_space(amit::geometry::Point3D{200u, 550u, 20u}, amit::graphics::kRgb8ColorRed),
+        make_vertex_in_screen_space(amit::geometry::Point3D{500u, 550u, 20u}, amit::graphics::kRgb8ColorYellow)};
 
     // Rasterization logic goes here. For now, we just set the triangle vertices to red color.
     std::cout << "Rasterization started\n";

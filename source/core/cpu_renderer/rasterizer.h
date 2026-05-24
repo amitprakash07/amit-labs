@@ -18,12 +18,12 @@ namespace amit::render::cpu
             BoundingBox
         };
 
-        graphics::PixelCoordinate            coordinate;
-        graphics::FloatColor                 color;
-        graphics::UVCoordinate               uv = {};
-        geometry::BaryCentricCoordinate      barycentric_coordinate;
-        float                                depth = 0.0f;
-        Kind                                 fragment_kind;
+        graphics::PixelCoordinate       coordinate;
+        graphics::FloatColor            color;
+        graphics::UVCoordinate          uv = {};
+        geometry::BaryCentricCoordinate barycentric_coordinate;
+        float                           depth = 0.0f;
+        Kind                            fragment_kind;
     };
 
     using FragmentShader = std::function<void(const RasterizedFragment&)>;
@@ -33,14 +33,23 @@ namespace amit::render::cpu
     public:
         Rasterizer() = default;
 
-        template <amit::graphics::RenderPrimitiveType type>
-        void Rasterize(
-            const graphics::RenderConfig&,
-            graphics::RenderState&,
-            graphics::RenderFrameStats&,
-            graphics::DrawOptions&,
-            const amit::graphics::RenderPrimitive<type>&,
-            const FragmentShader&) const
+        template <graphics::CoordinateSpaceConcept coordinate_space>
+        void Rasterize(const graphics::RenderConfig&,
+                       graphics::RenderState&,
+                       graphics::RenderFrameStats&,
+                       graphics::DrawOptions&,
+                       const amit::graphics::RenderPrimitiveLine<coordinate_space>&,
+                       const FragmentShader&) const
+        {
+        }
+
+        template <graphics::CoordinateSpaceConcept coordinate_space>
+        void Rasterize(const graphics::RenderConfig&,
+                       graphics::RenderState&,
+                       graphics::RenderFrameStats&,
+                       graphics::DrawOptions&,
+                       const amit::graphics::RenderPrimitiveTriangle<coordinate_space>&,
+                       const FragmentShader&) const
         {
         }
 
@@ -54,23 +63,40 @@ namespace amit::render::cpu
         }
     };
 
-    template <>
-    void Rasterizer::Rasterize<amit::graphics::RenderPrimitiveType::kTriangle>(
-        const graphics::RenderConfig&                                                          render_config,
-        graphics::RenderState&                                                                 render_state,
-        graphics::RenderFrameStats&                                                            render_frame_stats,
-        graphics::DrawOptions&                                                                 draw_options,
-        const amit::graphics::RenderPrimitive<amit::graphics::RenderPrimitiveType::kTriangle>& triangle,
-        const FragmentShader&                                                                  fragment_shader) const;
+    // Screen space
 
     template <>
-    void Rasterizer::Rasterize<amit::graphics::RenderPrimitiveType::kLine>(
-        const graphics::RenderConfig&                                                      render_config,
-        graphics::RenderState&                                                             render_state,
-        graphics::RenderFrameStats&                                                        render_frame_stats,
-        graphics::DrawOptions&                                                             draw_options,
-        const amit::graphics::RenderPrimitive<amit::graphics::RenderPrimitiveType::kLine>& line,
-        const FragmentShader&                                                              fragment_shader) const;
+    void Rasterizer::Rasterize(const graphics::RenderConfig&,
+                               graphics::RenderState&,
+                               graphics::RenderFrameStats&,
+                               graphics::DrawOptions&,
+                               const amit::graphics::RenderPrimitiveLine<graphics::ScreenSpace>&,
+                               const FragmentShader&) const;
+
+    template <>
+    void Rasterizer::Rasterize(const graphics::RenderConfig&,
+                               graphics::RenderState&,
+                               graphics::RenderFrameStats&,
+                               graphics::DrawOptions&,
+                               const amit::graphics::RenderPrimitiveTriangle<graphics::ScreenSpace>&,
+                               const FragmentShader&) const;
+
+    // Clip Space
+    template <>
+    void Rasterizer::Rasterize(const graphics::RenderConfig&,
+                               graphics::RenderState&,
+                               graphics::RenderFrameStats&,
+                               graphics::DrawOptions&,
+                               const amit::graphics::RenderPrimitiveLine<graphics::ClipSpace>&,
+                               const FragmentShader&) const;
+
+    template <>
+    void Rasterizer::Rasterize(const graphics::RenderConfig&,
+                               graphics::RenderState&,
+                               graphics::RenderFrameStats&,
+                               graphics::DrawOptions&,
+                               const amit::graphics::RenderPrimitiveTriangle<graphics::ClipSpace>&,
+                               const FragmentShader&) const;
 
 }  // namespace amit::render::cpu
 
