@@ -4,7 +4,6 @@
 #include <functional>
 
 #include "core/maths/geometry/geometry.h"
-#include "core/maths/geometry/geometry_primitives.h"
 #include "core/graphics/render_context.h"
 #include "core/graphics_common/render_primitives.h"
 
@@ -26,14 +25,15 @@ namespace amit::render::cpu
         Kind                            fragment_kind;
     };
 
-    using FragmentShader = std::function<void(const RasterizedFragment&)>;
+    using FragmentShader     = std::function<void(const RasterizedFragment&)>;
+    using ClipPlaneDistances = std::array<float, 6>;
 
     class Rasterizer
     {
     public:
         Rasterizer() = default;
 
-        template <graphics::CoordinateSpaceConcept coordinate_space>
+        template <graphics::PrimitiveAttributeCoordinateSpaceConcept coordinate_space>
         void Rasterize(const graphics::RenderConfig&,
                        graphics::RenderState&,
                        graphics::RenderFrameStats&,
@@ -43,7 +43,7 @@ namespace amit::render::cpu
         {
         }
 
-        template <graphics::CoordinateSpaceConcept coordinate_space>
+        template <graphics::PrimitiveAttributeCoordinateSpaceConcept coordinate_space>
         void Rasterize(const graphics::RenderConfig&,
                        graphics::RenderState&,
                        graphics::RenderFrameStats&,
@@ -61,6 +61,16 @@ namespace amit::render::cpu
             fragment_shader(fragment);
             draw_stats_scope.IncrementStatCount(graphics::RenderStatCounter::kRasterizedPixelCount);
         }
+
+        ClipPlaneDistances GetClipPlaneDistances(const amit::graphics::ClipSpace::Position& clip_position) const;
+
+        bool IsFullyOutsideClipVolume(
+            const amit::graphics::RenderPrimitiveTriangle<amit::graphics::ClipSpace>& triangle) const;
+        bool IsFullyOutsideClipVolume(const amit::graphics::RenderPrimitiveLine<amit::graphics::ClipSpace>& line) const;
+
+        amit::graphics::VertexAttributes<amit::graphics::ScreenSpace> TransformClipVertexToScreenSpace(
+            const amit::graphics::Viewport&                                    viewport,
+            const amit::graphics::VertexAttributes<amit::graphics::ClipSpace>& clip_vertex) const;
     };
 
     // Screen space

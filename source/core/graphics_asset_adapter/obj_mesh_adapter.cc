@@ -36,7 +36,8 @@ amit::graphics::MeshData amit::graphics_asset_adapter::ConvertObjMeshToGraphicsM
     for (const asset_loading::ObjVertex& obj_vertex : obj_mesh_data.vertices)
     {
         graphics_mesh_data.vertices.push_back(graphics::VertexAttributes<graphics::LocalSpace>{
-            .position = geometry::Point3D{obj_vertex.position.x, obj_vertex.position.y, obj_vertex.position.z},
+            .position = graphics::LocalSpace::Position{
+                geometry::Point3D{obj_vertex.position.x, obj_vertex.position.y, obj_vertex.position.z}},
             .color    = ToRgb8(obj_vertex.color),
             .uv       = {obj_vertex.texture_coordinate.u, obj_vertex.texture_coordinate.v}});
     }

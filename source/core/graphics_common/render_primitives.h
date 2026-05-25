@@ -3,6 +3,7 @@
 
 #include <array>
 #include <string_view>
+#include <type_traits>
 
 #include "core/common/core.h"
 #include "core/maths/geometry/point.h"
@@ -13,23 +14,94 @@
 
 namespace amit::graphics
 {
-    using LocalSpace  = geometry::Point3D;
-    using WorldSpace  = maths::Vector3;
-    using ClipSpace   = maths::Vector4;
-    using NDCSpace    = maths::Vector3;
-    using ScreenSpace = geometry::Point3D;  // x,y and z for the depth buffer
+    struct LocalSpace
+    {
+        struct Position : geometry::Point3D
+        {
+            using geometry::Point3D::Point3D;
 
-    template <typename TCoordinateSpace>
-    concept CoordinateSpaceConcept =
-        std::is_same_v<TCoordinateSpace, LocalSpace> || std::is_same_v<TCoordinateSpace, WorldSpace> ||
-        std::is_same_v<TCoordinateSpace, ClipSpace> || std::is_same_v<TCoordinateSpace, NDCSpace>;
+            Position() = default;
 
-    template <CoordinateSpaceConcept CoordinateSpace>
+            explicit Position(const geometry::Point3D& point)
+                : geometry::Point3D(point)
+            {
+            }
+        };
+    };
+
+    struct WorldSpace
+    {
+        struct Position : maths::Vector3
+        {
+            using maths::Vector3::Vector3;
+
+            Position() = default;
+
+            explicit Position(const maths::Vector3& vector)
+                : maths::Vector3(vector)
+            {
+            }
+        };
+    };
+
+    struct ClipSpace
+    {
+        struct Position : maths::Vector4
+        {
+            using maths::Vector4::Vector4;
+
+            Position() = default;
+
+            explicit Position(const maths::Vector4& vector)
+                : maths::Vector4(vector)
+            {
+            }
+        };
+    };
+
+    struct NDCSpace
+    {
+        struct Position : maths::Vector3
+        {
+            using maths::Vector3::Vector3;
+
+            Position() = default;
+
+            explicit Position(const maths::Vector3& vector)
+                : maths::Vector3(vector)
+            {
+            }
+        };
+    };
+
+    struct ScreenSpace
+    {
+        struct Position : geometry::Point3D
+        {
+            using geometry::Point3D::Point3D;
+
+            Position() = default;
+
+            explicit Position(const geometry::Point3D& point)
+                : geometry::Point3D(point)
+            {
+            }
+        };
+    };
+
+    template <typename AttributeCoordinateSpace>
+    concept PrimitiveAttributeCoordinateSpaceConcept =
+        requires { typename AttributeCoordinateSpace::Position; } &&
+        (std::is_same_v<AttributeCoordinateSpace, LocalSpace> || std::is_same_v<AttributeCoordinateSpace, WorldSpace> ||
+         std::is_same_v<AttributeCoordinateSpace, ClipSpace> || std::is_same_v<AttributeCoordinateSpace, NDCSpace> ||
+         std::is_same_v<AttributeCoordinateSpace, ScreenSpace>);
+
+    template <PrimitiveAttributeCoordinateSpaceConcept AttributeSpaceType>
     struct VertexAttributes
     {
-        CoordinateSpace        position;
-        graphics::Rgb8         color;
-        graphics::UVCoordinate uv;
+        AttributeSpaceType::Position position;
+        graphics::Rgb8               color;
+        graphics::UVCoordinate       uv;
     };
 
     enum class RenderPrimitiveType
@@ -61,7 +133,7 @@ namespace amit::graphics
         RenderPrimitive() = default;
     };
 
-    template <CoordinateSpaceConcept CoordinateSpace>
+    template <PrimitiveAttributeCoordinateSpaceConcept PrimitiveAttributeCoordinateSpace>
     class RenderPrimitivePoint : public RenderPrimitive<RenderPrimitiveType::kPoint>
     {
     public:
@@ -71,13 +143,13 @@ namespace amit::graphics
         {
         }
 
-        RenderPrimitivePoint(const VertexAttributes<CoordinateSpace>& point)
+        RenderPrimitivePoint(const VertexAttributes<PrimitiveAttributeCoordinateSpace>& point)
             : point_vertex_{point}
             , object_label_(RenderPrimitiveType::kPoint)
         {
         }
 
-        const VertexAttributes<CoordinateSpace>& PointVertex() const
+        const VertexAttributes<PrimitiveAttributeCoordinateSpace>& PointVertex() const
         {
             return point_vertex_;
         }
@@ -93,11 +165,11 @@ namespace amit::graphics
         }
 
     private:
-        VertexAttributes<CoordinateSpace> point_vertex_;
-        ObjectLabel<RenderPrimitiveType>  object_label_;
+        VertexAttributes<PrimitiveAttributeCoordinateSpace> point_vertex_;
+        ObjectLabel<RenderPrimitiveType>          object_label_;
     };
 
-    template <CoordinateSpaceConcept CoordinateSpace>
+    template <PrimitiveAttributeCoordinateSpaceConcept PrimitiveAttributeCoordinateSpace>
     class RenderPrimitiveLine : public RenderPrimitive<RenderPrimitiveType::kLine>
     {
     public:
@@ -107,31 +179,31 @@ namespace amit::graphics
         {
         }
 
-        RenderPrimitiveLine(const VertexAttributes<CoordinateSpace>& start,
-                            const VertexAttributes<CoordinateSpace>& end)
+        RenderPrimitiveLine(const VertexAttributes<PrimitiveAttributeCoordinateSpace>& start,
+                            const VertexAttributes<PrimitiveAttributeCoordinateSpace>& end)
             : end_points_{start, end}
             , object_label_(RenderPrimitiveType::kLine)
 
         {
         }
 
-        RenderPrimitiveLine(const std::array<VertexAttributes<CoordinateSpace>, 2>& end_points)
+        RenderPrimitiveLine(const std::array<VertexAttributes<PrimitiveAttributeCoordinateSpace>, 2>& end_points)
             : end_points_(end_points)
             , object_label_(RenderPrimitiveType::kLine)
         {
         }
 
-        const VertexAttributes<CoordinateSpace>& Start() const
+        const VertexAttributes<PrimitiveAttributeCoordinateSpace>& Start() const
         {
             return end_points_[0];
         }
 
-        const VertexAttributes<CoordinateSpace>& End() const
+        const VertexAttributes<PrimitiveAttributeCoordinateSpace>& End() const
         {
             return end_points_[1];
         }
 
-        std::array<VertexAttributes<CoordinateSpace>, 2> GetEndPoints() const
+        std::array<VertexAttributes<PrimitiveAttributeCoordinateSpace>, 2> GetEndPoints() const
         {
             return end_points_;
         }
@@ -147,59 +219,59 @@ namespace amit::graphics
         }
 
     private:
-        std::array<VertexAttributes<CoordinateSpace>, 2> end_points_;
-        ObjectLabel<RenderPrimitiveType>                 object_label_;
+        std::array<VertexAttributes<PrimitiveAttributeCoordinateSpace>, 2> end_points_;
+        ObjectLabel<RenderPrimitiveType>                         object_label_;
     };
 
-    template <CoordinateSpaceConcept CoordinateSpace>
+    template <PrimitiveAttributeCoordinateSpaceConcept PrimitiveAttributeCoordinateSpace>
     class RenderPrimitiveTriangle : public RenderPrimitive<RenderPrimitiveType::kTriangle>
     {
     public:
-        RenderPrimitiveTriangle(const VertexAttributes<CoordinateSpace>& vert_a,
-                                const VertexAttributes<CoordinateSpace>& vert_b,
-                                const VertexAttributes<CoordinateSpace>& vert_c)
+        RenderPrimitiveTriangle(const VertexAttributes<PrimitiveAttributeCoordinateSpace>& vert_a,
+                                const VertexAttributes<PrimitiveAttributeCoordinateSpace>& vert_b,
+                                const VertexAttributes<PrimitiveAttributeCoordinateSpace>& vert_c)
             : vertices_{vert_a, vert_b, vert_c}
             , object_label_(RenderPrimitiveType::kTriangle)
         {
         }
 
-        RenderPrimitiveTriangle(const std::array<VertexAttributes<CoordinateSpace>, 3>& vertices)
+        RenderPrimitiveTriangle(const std::array<VertexAttributes<PrimitiveAttributeCoordinateSpace>, 3>& vertices)
             : vertices_(vertices)
             , object_label_(RenderPrimitiveType::kTriangle)
         {
         }
 
-        const VertexAttributes<CoordinateSpace>& VertA() const
+        const VertexAttributes<PrimitiveAttributeCoordinateSpace>& VertA() const
         {
             return vertices_[0];
         }
 
-        const VertexAttributes<CoordinateSpace>& VertB() const
+        const VertexAttributes<PrimitiveAttributeCoordinateSpace>& VertB() const
         {
             return vertices_[1];
         }
 
-        const VertexAttributes<CoordinateSpace>& VertC() const
+        const VertexAttributes<PrimitiveAttributeCoordinateSpace>& VertC() const
         {
             return vertices_[2];
         }
 
-        RenderPrimitiveLine<CoordinateSpace> Edge_0() const
+        RenderPrimitiveLine<PrimitiveAttributeCoordinateSpace> Edge_0() const
         {
             return {vertices_[0], vertices_[1]};
         }
 
-        RenderPrimitiveLine<CoordinateSpace> Edge_1() const
+        RenderPrimitiveLine<PrimitiveAttributeCoordinateSpace> Edge_1() const
         {
             return {vertices_[1], vertices_[2]};
         }
 
-        RenderPrimitiveLine<CoordinateSpace> Edge_2() const
+        RenderPrimitiveLine<PrimitiveAttributeCoordinateSpace> Edge_2() const
         {
             return {vertices_[2], vertices_[0]};
         }
 
-        std::array<VertexAttributes<CoordinateSpace>, 3> GetVertices() const
+        std::array<VertexAttributes<PrimitiveAttributeCoordinateSpace>, 3> GetVertices() const
         {
             return vertices_;
         }
@@ -215,8 +287,8 @@ namespace amit::graphics
         }
 
     private:
-        std::array<VertexAttributes<CoordinateSpace>, 3> vertices_;
-        ObjectLabel<RenderPrimitiveType>                 object_label_;
+        std::array<VertexAttributes<PrimitiveAttributeCoordinateSpace>, 3> vertices_;
+        ObjectLabel<RenderPrimitiveType>                         object_label_;
     };
 }  // namespace amit::graphics
 

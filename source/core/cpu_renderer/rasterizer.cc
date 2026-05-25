@@ -1,5 +1,7 @@
 #include "rasterizer.h"
 
+#include <array>
+
 #include "core/graphics/barycentric_interpolation.h"
 #include "core/graphics_common/color.h"
 #include "core/graphics_common/render_primitives.h"
@@ -302,6 +304,80 @@ void amit::render::cpu::Rasterizer::Rasterize(
 }
 
 // Line - Clip-Space
+
+amit::render::cpu::ClipPlaneDistances amit::render::cpu::Rasterizer::GetClipPlaneDistances(
+    const amit::graphics::ClipSpace::Position& clip_position) const
+{
+    const float* const clip_components = clip_position.AsFloatArray();
+
+    const float x = clip_components[0];
+    const float y = clip_components[1];
+    const float z = clip_components[2];
+    const float w = clip_components[3];
+
+    // D3D-style homogeneous clip volume:
+    // -w <= x <= w, -w <= y <= w, 0 <= z <= w.
+    return {
+        x + w,  // left
+        w - x,  // right
+        y + w,  // bottom
+        w - y,  // top
+        z,      // near
+        w - z   // far
+    };
+}
+
+bool amit::render::cpu::Rasterizer::IsFullyOutsideClipVolume(
+    const amit::graphics::RenderPrimitiveTriangle<amit::graphics::ClipSpace>& triangle) const
+{
+    const ClipPlaneDistances vert_a_distances = GetClipPlaneDistances(triangle.VertA().position);
+    const ClipPlaneDistances vert_b_distances = GetClipPlaneDistances(triangle.VertB().position);
+    const ClipPlaneDistances vert_c_distances = GetClipPlaneDistances(triangle.VertC().position);
+
+    for (std::size_t plane_index = 0; plane_index < vert_a_distances.size(); ++plane_index)
+    {
+        if (vert_a_distances[plane_index] < 0.0f && vert_b_distances[plane_index] < 0.0f &&
+            vert_c_distances[plane_index] < 0.0f)
+        {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+bool amit::render::cpu::Rasterizer::IsFullyOutsideClipVolume(
+    const amit::graphics::RenderPrimitiveLine<amit::graphics::ClipSpace>& line) const
+{
+    const ClipPlaneDistances start_distances = GetClipPlaneDistances(line.Start().position);
+    const ClipPlaneDistances end_distances   = GetClipPlaneDistances(line.End().position);
+
+    for (std::size_t plane_index = 0; plane_index < start_distances.size(); ++plane_index)
+    {
+        if (start_distances[plane_index] < 0.0f && end_distances[plane_index] < 0.0f)
+        {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+amit::graphics::VertexAttributes<amit::graphics::ScreenSpace>
+amit::render::cpu::Rasterizer::TransformClipVertexToScreenSpace(
+    const amit::graphics::Viewport&                                    viewport,
+    const amit::graphics::VertexAttributes<amit::graphics::ClipSpace>& clip_vertex) const
+{
+    const amit::maths::Vector3 ndc_position    = amit::graphics::TransformClipSpaceToNdcSpace(clip_vertex.position);
+    const amit::maths::Vector3 screen_position = amit::graphics::TransformNdcSpaceToScreenSpace(viewport, ndc_position);
+
+    return amit::graphics::VertexAttributes<amit::graphics::ScreenSpace>{
+        .position = amit::graphics::ScreenSpace::Position{amit::geometry::Point3D{
+            screen_position.x(), screen_position.y(), screen_position.z()}},
+        .color    = clip_vertex.color,
+        .uv       = clip_vertex.uv};
+}
+
 template <>
 void amit::render::cpu::Rasterizer::Rasterize(const graphics::RenderConfig& render_config,
                                               graphics::RenderState&        render_state,
@@ -310,7 +386,20 @@ void amit::render::cpu::Rasterizer::Rasterize(const graphics::RenderConfig& rend
                                               const amit::graphics::RenderPrimitiveLine<graphics::ClipSpace>& line,
                                               const FragmentShader& fragment_shader) const
 {
+    if (IsFullyOutsideClipVolume(line))
+    {
+        graphics::ScopedDrawCallStats draw_stats_scope(
+            render_frame_stats, draw_options.GetStatsCollectionLevel(), line);
+        return;
+    }
+
+    const graphics::RenderPrimitiveLine<graphics::ScreenSpace> screen_space_line{
+        TransformClipVertexToScreenSpace(render_config.GetViewport(), line.Start()),
+        TransformClipVertexToScreenSpace(render_config.GetViewport(), line.End())};
+
+    Rasterize(render_config, render_state, render_frame_stats, draw_options, screen_space_line, fragment_shader);
 }
+
 // Triangle - Clip Space
 template <>
 void amit::render::cpu::Rasterizer::Rasterize(
@@ -321,4 +410,17 @@ void amit::render::cpu::Rasterizer::Rasterize(
     const amit::graphics::RenderPrimitiveTriangle<graphics::ClipSpace>& triangle,
     const FragmentShader&                                               fragment_shader) const
 {
+    if (IsFullyOutsideClipVolume(triangle))
+    {
+        graphics::ScopedDrawCallStats draw_stats_scope(
+            render_frame_stats, draw_options.GetStatsCollectionLevel(), triangle);
+        return;
+    }
+
+    const graphics::RenderPrimitiveTriangle<graphics::ScreenSpace> screen_space_triangle{
+        TransformClipVertexToScreenSpace(render_config.GetViewport(), triangle.VertA()),
+        TransformClipVertexToScreenSpace(render_config.GetViewport(), triangle.VertB()),
+        TransformClipVertexToScreenSpace(render_config.GetViewport(), triangle.VertC())};
+
+    Rasterize(render_config, render_state, render_frame_stats, draw_options, screen_space_triangle, fragment_shader);
 }

@@ -1,17 +1,13 @@
 #ifndef CORE_GRAPHICS_TRANSFORM_H_
 #define CORE_GRAPHICS_TRANSFORM_H_
 
-#include <cmath>
-#include <cstdint>
 #include <limits>
-#include <utility>
 
 #include "matrix_4x4.h"
 #include "projection.h"
 #include "vector4.h"
 #include "viewport.h"
 #include "core/graphics_common/graphics_common.h"
-#include "core/graphics_common/render_primitives.h"
 
 namespace amit::graphics
 {
@@ -76,16 +72,17 @@ namespace amit::graphics
         return ndc_space_position;
     }
 
-    inline PixelCoordinate TransformNdcSpaceToScreenSpace(const Viewport& viewport, const maths::Vector3& ndc_position)
+    inline maths::Vector3 TransformNdcSpaceToScreenSpace(const Viewport& viewport, const maths::Vector3& ndc_position)
     {
-        const float pixel_x =
+        const float x_screen_space =
             viewport.Origin().x + (ndc_position.x() + 1.0f) * 0.5f * static_cast<float>(viewport.GetWidth().value);
-        const float pixel_y =
+        const float y_screen_space =
             viewport.Origin().y + (1.0f - ndc_position.y()) * 0.5f * static_cast<float>(viewport.GetHeight().value);
 
-        return PixelCoordinate{
-            .x = static_cast<std::uint32_t>(pixel_x),
-            .y = static_cast<std::uint32_t>(pixel_y),
+        return maths::Vector3{
+            x_screen_space,
+            y_screen_space,
+            ndc_position.z()  // Preserve depth for depth testing in screen space.
         };
     }
 
