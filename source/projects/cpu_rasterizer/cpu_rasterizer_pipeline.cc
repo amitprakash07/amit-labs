@@ -12,36 +12,9 @@
 #include "core/graphics/text_overlay.h"
 #include "core/graphics/transform.h"
 #include "core/maths/geometry/point.h"
-#include "core/maths/linear_algebra/vector4.h"
 
 namespace amit::cpu_rasterizer
 {
-    namespace
-    {
-        graphics::VertexAttributes<graphics::ClipSpace> TransformLocalVertexToClipSpace(
-            const graphics::VertexAttributes<graphics::LocalSpace>& local_vertex,
-            const graphics::TransformMatrices&                      transform_matrices)
-        {
-            const graphics::LocalSpace::Position& local_position = local_vertex.position;
-            const maths::Vector4                  clip_position  = transform_matrices.model_view_projection_matrix.Mul(
-                maths::Vector4{local_position.x, local_position.y, local_position.z, 1.0f});
-
-            return graphics::VertexAttributes<graphics::ClipSpace>{
-                .position = graphics::ClipSpace::Position{clip_position},
-                .color    = local_vertex.color,
-                .uv       = local_vertex.uv};
-        }
-
-        graphics::RenderPrimitiveTriangle<graphics::ClipSpace> TransformLocalTriangleToClipSpace(
-            const graphics::RenderPrimitiveTriangle<graphics::LocalSpace>& local_triangle,
-            const graphics::TransformMatrices&                             transform_matrices)
-        {
-            return {TransformLocalVertexToClipSpace(local_triangle.VertA(), transform_matrices),
-                    TransformLocalVertexToClipSpace(local_triangle.VertB(), transform_matrices),
-                    TransformLocalVertexToClipSpace(local_triangle.VertC(), transform_matrices)};
-        }
-    }  // namespace
-
     void RasterizeInScreenSpace(const graphics::Viewport& viewport)
     {
         auto make_vertex_in_screen_space = [&viewport](const geometry::Point3D& position, const graphics::Rgb8& color) {
@@ -167,9 +140,9 @@ namespace amit::cpu_rasterizer
             transform_matrices.projection_matrix * transform_matrices.view_matrix * transform_matrices.model_matrix;
 
         const graphics::RenderPrimitiveTriangle<graphics::ClipSpace> clip_space_triangle_1 =
-            TransformLocalTriangleToClipSpace(local_space_triangle_1, transform_matrices);
+            graphics::TransformLocalTriangleToClipSpace(local_space_triangle_1, transform_matrices);
         const graphics::RenderPrimitiveTriangle<graphics::ClipSpace> clip_space_triangle_2 =
-            TransformLocalTriangleToClipSpace(local_space_triangle_2, transform_matrices);
+            graphics::TransformLocalTriangleToClipSpace(local_space_triangle_2, transform_matrices);
 
         graphics::RenderFrame   render_frame(viewport);
         graphics::RenderOutput& render_output = render_frame.GetRenderOutput();

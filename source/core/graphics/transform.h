@@ -56,6 +56,28 @@ namespace amit::graphics
         return result;
     }
 
+    inline graphics::VertexAttributes<graphics::ClipSpace> TransformLocalVertexToClipSpace(
+        const graphics::VertexAttributes<graphics::LocalSpace>& local_vertex,
+        const graphics::TransformMatrices&                      transform_matrices)
+    {
+        const graphics::LocalSpace::Position& local_position = local_vertex.position;
+        const maths::Vector4                  clip_position  = transform_matrices.model_view_projection_matrix.Mul(
+            maths::Vector4{local_position.x, local_position.y, local_position.z, 1.0f});
+
+        return graphics::VertexAttributes<graphics::ClipSpace>{.position = graphics::ClipSpace::Position{clip_position},
+                                                               .color    = local_vertex.color,
+                                                               .uv       = local_vertex.uv};
+    }
+
+    inline graphics::RenderPrimitiveTriangle<graphics::ClipSpace> TransformLocalTriangleToClipSpace(
+        const graphics::RenderPrimitiveTriangle<graphics::LocalSpace>& local_triangle,
+        const graphics::TransformMatrices&                             transform_matrices)
+    {
+        return {TransformLocalVertexToClipSpace(local_triangle.VertA(), transform_matrices),
+                TransformLocalVertexToClipSpace(local_triangle.VertB(), transform_matrices),
+                TransformLocalVertexToClipSpace(local_triangle.VertC(), transform_matrices)};
+    }
+
     inline maths::Vector3 TransformClipSpaceToNdcSpace(const maths::Vector4& attribute)
     {
         const float* const clip_components = attribute.AsFloatArray();
