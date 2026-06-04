@@ -18,6 +18,12 @@ namespace amit::graphics
         float aspect_ratio;
         float near_plane;
         float far_plane;
+
+        std::string ToString() const
+        {
+            return std::format(
+                "Fov(radians): {}, Aspect: {}, Near: {}, Far: {}", fov_in_radians, aspect_ratio, near_plane, far_plane);
+        }
     };
 
     inline PerspectiveFrustum kDefaultPerspectiveFrustum{.fov_in_radians = maths::ToRadians(60.0f),
@@ -25,11 +31,8 @@ namespace amit::graphics
                                                          .near_plane     = 0.1f,
                                                          .far_plane      = 100.0f};
 
-    inline maths::Matrix4x4 MakePerspectiveLH(const PerspectiveFrustum& frustum = kDefaultPerspectiveFrustum)
-    {
-        // TODO: Implement this function. For now, we just return the identity matrix.
-        return maths::Matrix4x4::GetIdentityMatrix();
-    }
+    maths::Matrix4x4 MakePerspectiveLH(const PerspectiveFrustum& frustum = kDefaultPerspectiveFrustum);
+
 }  // namespace amit::graphics
 
 #endif

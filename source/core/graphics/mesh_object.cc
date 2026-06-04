@@ -7,6 +7,8 @@
 #include "../../../Windows/WindowsFunctions.h"
 #include "MeshObject.h"
 #include "Scene.h"
+#include "projection.h"
+#include "transform.h"
 
 SharedPointer<MeshObject> MeshObject::CreateMeshObject(
     std::string i_meshFileName, std::string i_materialName,
@@ -221,7 +223,7 @@ void MeshObject::draw(bool drawDebugObject) {
         Graphics::UniformValues worldToViewValues;
         worldToViewValues.matrixValue.Type = Graphics::WorldToView;
         worldToViewValues.matrixValue.matrix =
-            Math::Matrix4x4::CreateWorldToViewTransform(
+            amit::graphics::MakeWorldToViewTransform(
                 cameraTransform.getOrientation(),
                 cameraTransform.getPosition());
         worldToView->setUniformValue(worldToViewValues);
@@ -231,7 +233,7 @@ void MeshObject::draw(bool drawDebugObject) {
         Graphics::UniformValues scaleMatrixValues;
         scaleMatrixValues.matrixValue.Type = Graphics::ScaleMatrix;
         scaleMatrixValues.matrixValue.matrix =
-            Math::Matrix4x4::CreateScaleMatrix(scaleFactor);
+            amit::graphics::MakeScaleMatrix(scaleFactor);
         scaleMatrix->setUniformValue(scaleMatrixValues);
       }
 
@@ -247,9 +249,13 @@ void MeshObject::draw(bool drawDebugObject) {
       if (!viewToScreen.isNull()) {
         Graphics::UniformValues viewToScreenValues;
         viewToScreenValues.matrixValue.Type = Graphics::ViewToScreen;
+        const amit::graphics::PerspectiveFrustum perspectiveFrustum{
+            .fov_in_radians = fieldOfView,
+            .aspect_ratio   = aspectRatio,
+            .near_plane     = nearPlane,
+            .far_plane      = farPlane};
         viewToScreenValues.matrixValue.matrix =
-            Math::Matrix4x4::CreateViewToScreenTransform(
-                fieldOfView, aspectRatio, nearPlane, farPlane);
+            amit::graphics::MakePerspectiveLH(perspectiveFrustum);
         viewToScreen->setUniformValue(viewToScreenValues);
       }
 

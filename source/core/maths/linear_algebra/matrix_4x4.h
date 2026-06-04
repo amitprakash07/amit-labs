@@ -1,31 +1,23 @@
 #ifndef CORE_MATHS_LINEAR_ALGEBRA_MATRIX_4X4_H_
 #define CORE_MATHS_LINEAR_ALGEBRA_MATRIX_4X4_H_
 
+#include <cstdint>
+
 /*
         This class represents a full Transform
         (i.e. a 4x4 matrix composed of a 3x3 rotation matrix and a 3 element
    translation vector)
 
-        Matrix Facts:
-                * The float elements are stored as columns
-                        * In other words, the second float stored is the first
-   element in the second row
-                        * This is so that all 16 floats can be copied directly
-   to Direct3D or OpenGL (Both HLSL and GLSL interpret a matrix's registers to
-   be columns)
-                * The vectors are the rows
-                        * In other words, the first three rows are the rotation
-   and the last row is the translation
-                        * This is an arbitrary choice, but it is arguably the
-   most common one in computer graphics (every other field outside of computer
-   graphics that I know of uses column vectors, though)
-                        * This matches standard Direct3D but is backwards from
-   standard OpenGL
-                * The vectors are right-handed
-                        * In other words, the first vector is right, the second
-   vector is up, and the third vector is back
-                        * This is an arbitrary choice; it matches Maya and
-   standard OpenGL, and is backwards from standard Direct3D
+        Matrix convention:
+                * Storage layout is column-major.
+                * Vector convention is row-vector pre-multiply:
+                        v' = v * M
+                * Transform composition follows the same row-vector order:
+                        clip = local * model * view * projection
+                        MVP  = model * view * projection
+                * Translation lives in m_30, m_31, and m_32.
+                * The basis vectors are right-handed:
+                        first vector is right, second vector is up, third vector is back.
 */
 
 #include "vector3.h"
@@ -43,25 +35,39 @@ namespace amit::maths
     class Matrix4x4
     {
     public:
-        static Matrix4x4 CreateWorldToViewTransform(const Quaternion& camera_orientation, const Vector3& camera_position);
-        static Matrix4x4 CreateViewToScreenTransform(float field_of_View, float aspect_ratio, float z_near_plane = 0.1f, float z_far_plane = 100.0f);
-        static Matrix4x4 CreateOrthographicViewToScreenTransform(float left, float right, float top, float bottom, float near, float far);
+        enum class StorageLayout : std::uint8_t
+        {
+            kColumnMajor
+        };
+
+        enum class VectorConvention : std::uint8_t
+        {
+            kRowVectorPreMultiply
+        };
+
+        static constexpr StorageLayout    kStorageLayout    = StorageLayout::kColumnMajor;
+        static constexpr VectorConvention kVectorConvention = VectorConvention::kRowVectorPreMultiply;
+
         static Matrix4x4 GetIdentityMatrix();
-        static Matrix4x4 CreateScaleMatrix(float x_scale, float y_scale, float z_scale);
-        static Matrix4x4 CreateLookAtMatrix(const Vector3& eye, const Vector3& target, const Vector3& up_vector);
-        static Matrix4x4 CreateScaleMatrix(const Vector3& scale_factor);
         static Matrix4x4 CreateNormalMatrix(const Matrix4x4& model_matrix);
         static Matrix4x4 CreateShadowMatrix(const Vector3& light_position, const geometry::Plane& plane);
-        Matrix4x4        operator*(float scalar) const;
-        Matrix4x4        operator*(Matrix4x4 other) const;
-        Vector3          Mul(const Vector3& vector, bool is_vector = false) const;
-        Vector4          Mul(const Vector4& vector) const;
-        void             operator*=(const Matrix4x4& other);
-        Matrix4x4        GetTranspose() const;
-        void             Transpose();
-        Matrix4x4        GetInverse() const;
-        void             Inverse();
-        float            Determinant() const;
+
+        Matrix4x4 operator*(float scalar) const;
+        Matrix4x4 operator*(const Matrix4x4& other) const;
+        void      operator*=(const Matrix4x4& other);
+
+        // Applies this matrix using row-vector convention: result = vector * matrix.
+        Vector3 Mul(const Vector3& vector, bool is_vector = false) const;
+
+        // Applies this matrix using row-vector convention: result = vector * matrix.
+        Vector4 Mul(const Vector4& vector) const;
+
+        Matrix4x4 GetTranspose() const;
+        void      Transpose();
+        Matrix4x4 GetInverse() const;
+        void      Inverse();
+        float     Determinant() const;
+
         Matrix4x4();
         Matrix4x4(const Quaternion& rotation, const Vector3& translation);
         Matrix4x4(const Vector3& translation, bool direction = false);
@@ -82,7 +88,8 @@ namespace amit::maths
                   float i_13,
                   float i_23,
                   float i_33);
-        void PrintMatrix4x4() const;
+
+        std::string ToString() const;
 
     private:
         // Storage is column-major; see notes at the top of the file

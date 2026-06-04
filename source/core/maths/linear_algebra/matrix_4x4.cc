@@ -4,9 +4,6 @@
 Link http://www.euclideanspace.com/
 */
 
-#include <cmath>
-#include <iostream>
-
 #include "matrix_4x4.h"
 #include "plane.h"
 #include "quaternion.h"
@@ -15,140 +12,14 @@ Link http://www.euclideanspace.com/
 
 using namespace amit::maths;
 
-Matrix4x4 Matrix4x4::CreateWorldToViewTransform(const Quaternion& camera_orientation, const Vector3& camera_position)
-{
-    Matrix4x4 transform_viewToWorld(camera_orientation, camera_position);
-    // A camera can only ever have rotation and translation
-    // and so a lot of simplifying assumptions can be made in order to create the
-    // inverse
-    return Matrix4x4{transform_viewToWorld.m_00,
-                     transform_viewToWorld.m_01,
-                     transform_viewToWorld.m_02,
-                     -(transform_viewToWorld.m_30 * transform_viewToWorld.m_00) - (transform_viewToWorld.m_31 * transform_viewToWorld.m_01) -
-                         (transform_viewToWorld.m_32 * transform_viewToWorld.m_02),
-                     transform_viewToWorld.m_10,
-                     transform_viewToWorld.m_11,
-                     transform_viewToWorld.m_12,
-                     -(transform_viewToWorld.m_30 * transform_viewToWorld.m_10) - (transform_viewToWorld.m_31 * transform_viewToWorld.m_11) -
-                         (transform_viewToWorld.m_32 * transform_viewToWorld.m_12),
-                     transform_viewToWorld.m_20,
-                     transform_viewToWorld.m_21,
-                     transform_viewToWorld.m_22,
-                     -(transform_viewToWorld.m_30 * transform_viewToWorld.m_20) - (transform_viewToWorld.m_31 * transform_viewToWorld.m_21) -
-                         (transform_viewToWorld.m_32 * transform_viewToWorld.m_22),
-                     0.0f,
-                     0.0f,
-                     0.0f,
-                     1.0f};
-}
-
 Matrix4x4 Matrix4x4::GetIdentityMatrix()
 {
     return Matrix4x4{};
 }
 
-Matrix4x4 Matrix4x4::CreateLookAtMatrix(const Vector3& eye, const Vector3& target, const Vector3& up_vector)
-{
-    Vector3 forward     = (target - eye).CreateNormalized();            // F
-    Vector3 left        = up_vector.Cross(forward).CreateNormalized();  // L
-    Vector3 up          = forward.Cross(left);                          // U
-    Vector3 Translation = Vector3(                                      // T
-        -left.Dot(eye),
-        -up_vector.Dot(eye),
-        -forward.Dot(eye));
-
-    Matrix4x4 lookAtMatrix{left.x(),
-                           left.y(),
-                           left.z(),
-                           0,
-                           up.x(),
-                           up.y(),
-                           up.z(),
-                           0,
-                           forward.x(),
-                           forward.y(),
-                           forward.z(),
-                           0,
-                           Translation.x(),
-                           Translation.y(),
-                           Translation.z(),
-                           1};
-
-    return lookAtMatrix;
-}
-
-Matrix4x4 Matrix4x4::CreateScaleMatrix(float x_scale, float y_scale, float z_scale)
-{
-    Matrix4x4 scaleMatrix = Matrix4x4();
-    scaleMatrix.m_00      = x_scale;
-    scaleMatrix.m_11      = y_scale;
-    scaleMatrix.m_22      = z_scale;
-    return scaleMatrix;
-}
-
-Matrix4x4 Matrix4x4::CreateScaleMatrix(const Vector3& scale_factor)
-{
-    return CreateScaleMatrix(scale_factor.x(), scale_factor.y(), scale_factor.z());
-}
-
 Matrix4x4 Matrix4x4::CreateNormalMatrix(const Matrix4x4& model_matrix)
 {
     return (model_matrix.GetTranspose().GetInverse());
-}
-
-Matrix4x4 Matrix4x4::CreateViewToScreenTransform(const float field_of_View, const float aspect_ratio, const float z_near_plane, const float z_far_plane)
-{
-    const float yScale = 1.0f / std::tan(field_of_View * 0.5f);
-    const float xScale = yScale / aspect_ratio;
-
-    const float zDistanceScale = z_far_plane / (z_near_plane - z_far_plane);
-    return Matrix4x4{xScale, 0.0f, 0.0f, 0.0f, 0.0f, yScale, 0.0f, 0.0f, 0.0f, 0.0f, zDistanceScale, z_near_plane * zDistanceScale, 0.0f, 0.0f, -1.0f, 0.0f};
-
-#if defined(PLATFORM_OPEN_GL)
-    const float zDistanceScale = 1.0f / (z_near_plane - z_far_plane);
-    return Matrix4x4(xScale,
-                     0.0f,
-                     0.0f,
-                     0.0f,
-                     0.0f,
-                     yScale,
-                     0.0f,
-                     0.0f,
-                     0.0f,
-                     0.0f,
-                     (z_near_plane + z_far_plane) * zDistanceScale,
-                     (2.0f * z_near_plane * z_far_plane) * zDistanceScale,
-                     0.0f,
-                     0.0f,
-                     -1.0f,
-                     0.0f);
-#endif
-}
-
-Matrix4x4 Matrix4x4::CreateOrthographicViewToScreenTransform(float left, float right, float top, float bottom, float near, float far)
-{
-    float rightMinusLeft = right - left;
-    float topMinusBottom = top - bottom;
-    float nearMinusFar   = near - far;
-    float leftPlusRight  = left + right;
-    float topPlusBottom  = top + bottom;
-    float nearPlusFar    = near + far;
-    return Matrix4x4(2 / rightMinusLeft,
-                     0.0f,
-                     0.0f,
-                     0.0f,
-                     0.0f,
-                     2 / topMinusBottom,
-                     0.0f,
-                     0.0f,
-                     0.0f,
-                     0.0f,
-                     2 / nearMinusFar,
-                     0.0f,
-                     leftPlusRight / (-rightMinusLeft),
-                     topPlusBottom / (-topMinusBottom),
-                     nearPlusFar / (-nearMinusFar),
-                     1.0f);
 }
 
 Matrix4x4::Matrix4x4()
@@ -191,23 +62,39 @@ Matrix4x4 Matrix4x4::GetInverse() const
     // http://www.euclideanspace.com/maths/algebra/matrix/resources/code/index.htm
 
     Matrix4x4 inverseMatrix;
-    inverseMatrix.m_00 = m_12 * m_23 * m_31 - m_13 * m_22 * m_31 + m_13 * m_21 * m_32 - m_11 * m_23 * m_32 - m_12 * m_21 * m_33 + m_11 * m_22 * m_33;
-    inverseMatrix.m_01 = m_03 * m_22 * m_31 - m_02 * m_23 * m_31 - m_03 * m_21 * m_32 + m_01 * m_23 * m_32 + m_02 * m_21 * m_33 - m_01 * m_22 * m_33;
-    inverseMatrix.m_02 = m_02 * m_13 * m_31 - m_03 * m_12 * m_31 + m_03 * m_11 * m_32 - m_01 * m_13 * m_32 - m_02 * m_11 * m_33 + m_01 * m_12 * m_33;
-    inverseMatrix.m_03 = m_03 * m_12 * m_21 - m_02 * m_13 * m_21 - m_03 * m_11 * m_22 + m_01 * m_13 * m_22 + m_02 * m_11 * m_23 - m_01 * m_12 * m_23;
-    inverseMatrix.m_10 = m_13 * m_22 * m_30 - m_12 * m_23 * m_30 - m_13 * m_20 * m_32 + m_10 * m_23 * m_32 + m_12 * m_20 * m_33 - m_10 * m_22 * m_33;
-    inverseMatrix.m_11 = m_02 * m_23 * m_30 - m_03 * m_22 * m_30 + m_03 * m_20 * m_32 - m_00 * m_23 * m_32 - m_02 * m_20 * m_33 + m_00 * m_22 * m_33;
-    inverseMatrix.m_12 = m_03 * m_12 * m_30 - m_02 * m_13 * m_30 - m_03 * m_10 * m_32 + m_00 * m_13 * m_32 + m_02 * m_10 * m_33 - m_00 * m_12 * m_33;
-    inverseMatrix.m_13 = m_02 * m_13 * m_20 - m_03 * m_12 * m_20 + m_03 * m_10 * m_22 - m_00 * m_13 * m_22 - m_02 * m_10 * m_23 + m_00 * m_12 * m_23;
-    inverseMatrix.m_20 = m_11 * m_23 * m_30 - m_13 * m_21 * m_30 + m_13 * m_20 * m_31 - m_10 * m_23 * m_31 - m_11 * m_20 * m_33 + m_10 * m_21 * m_33;
-    inverseMatrix.m_21 = m_03 * m_21 * m_30 - m_01 * m_23 * m_30 - m_03 * m_20 * m_31 + m_00 * m_23 * m_31 + m_01 * m_20 * m_33 - m_00 * m_21 * m_33;
-    inverseMatrix.m_22 = m_01 * m_13 * m_30 - m_03 * m_11 * m_30 + m_03 * m_10 * m_31 - m_00 * m_13 * m_31 - m_01 * m_10 * m_33 + m_00 * m_11 * m_33;
-    inverseMatrix.m_23 = m_03 * m_11 * m_20 - m_01 * m_13 * m_20 - m_03 * m_10 * m_21 + m_00 * m_13 * m_21 + m_01 * m_10 * m_23 - m_00 * m_11 * m_23;
-    inverseMatrix.m_30 = m_12 * m_21 * m_30 - m_11 * m_22 * m_30 - m_12 * m_20 * m_31 + m_10 * m_22 * m_31 + m_11 * m_20 * m_32 - m_10 * m_21 * m_32;
-    inverseMatrix.m_31 = m_01 * m_22 * m_30 - m_02 * m_21 * m_30 + m_02 * m_20 * m_31 - m_00 * m_22 * m_31 - m_01 * m_20 * m_32 + m_00 * m_21 * m_32;
-    inverseMatrix.m_32 = m_02 * m_11 * m_30 - m_01 * m_12 * m_30 - m_02 * m_10 * m_31 + m_00 * m_12 * m_31 + m_01 * m_10 * m_32 - m_00 * m_11 * m_32;
-    inverseMatrix.m_33 = m_01 * m_12 * m_20 - m_02 * m_11 * m_20 + m_02 * m_10 * m_21 - m_00 * m_12 * m_21 - m_01 * m_10 * m_22 + m_00 * m_11 * m_22;
-    inverseMatrix      = inverseMatrix * this->Determinant();
+    inverseMatrix.m_00 = m_12 * m_23 * m_31 - m_13 * m_22 * m_31 + m_13 * m_21 * m_32 - m_11 * m_23 * m_32 -
+                         m_12 * m_21 * m_33 + m_11 * m_22 * m_33;
+    inverseMatrix.m_01 = m_03 * m_22 * m_31 - m_02 * m_23 * m_31 - m_03 * m_21 * m_32 + m_01 * m_23 * m_32 +
+                         m_02 * m_21 * m_33 - m_01 * m_22 * m_33;
+    inverseMatrix.m_02 = m_02 * m_13 * m_31 - m_03 * m_12 * m_31 + m_03 * m_11 * m_32 - m_01 * m_13 * m_32 -
+                         m_02 * m_11 * m_33 + m_01 * m_12 * m_33;
+    inverseMatrix.m_03 = m_03 * m_12 * m_21 - m_02 * m_13 * m_21 - m_03 * m_11 * m_22 + m_01 * m_13 * m_22 +
+                         m_02 * m_11 * m_23 - m_01 * m_12 * m_23;
+    inverseMatrix.m_10 = m_13 * m_22 * m_30 - m_12 * m_23 * m_30 - m_13 * m_20 * m_32 + m_10 * m_23 * m_32 +
+                         m_12 * m_20 * m_33 - m_10 * m_22 * m_33;
+    inverseMatrix.m_11 = m_02 * m_23 * m_30 - m_03 * m_22 * m_30 + m_03 * m_20 * m_32 - m_00 * m_23 * m_32 -
+                         m_02 * m_20 * m_33 + m_00 * m_22 * m_33;
+    inverseMatrix.m_12 = m_03 * m_12 * m_30 - m_02 * m_13 * m_30 - m_03 * m_10 * m_32 + m_00 * m_13 * m_32 +
+                         m_02 * m_10 * m_33 - m_00 * m_12 * m_33;
+    inverseMatrix.m_13 = m_02 * m_13 * m_20 - m_03 * m_12 * m_20 + m_03 * m_10 * m_22 - m_00 * m_13 * m_22 -
+                         m_02 * m_10 * m_23 + m_00 * m_12 * m_23;
+    inverseMatrix.m_20 = m_11 * m_23 * m_30 - m_13 * m_21 * m_30 + m_13 * m_20 * m_31 - m_10 * m_23 * m_31 -
+                         m_11 * m_20 * m_33 + m_10 * m_21 * m_33;
+    inverseMatrix.m_21 = m_03 * m_21 * m_30 - m_01 * m_23 * m_30 - m_03 * m_20 * m_31 + m_00 * m_23 * m_31 +
+                         m_01 * m_20 * m_33 - m_00 * m_21 * m_33;
+    inverseMatrix.m_22 = m_01 * m_13 * m_30 - m_03 * m_11 * m_30 + m_03 * m_10 * m_31 - m_00 * m_13 * m_31 -
+                         m_01 * m_10 * m_33 + m_00 * m_11 * m_33;
+    inverseMatrix.m_23 = m_03 * m_11 * m_20 - m_01 * m_13 * m_20 - m_03 * m_10 * m_21 + m_00 * m_13 * m_21 +
+                         m_01 * m_10 * m_23 - m_00 * m_11 * m_23;
+    inverseMatrix.m_30 = m_12 * m_21 * m_30 - m_11 * m_22 * m_30 - m_12 * m_20 * m_31 + m_10 * m_22 * m_31 +
+                         m_11 * m_20 * m_32 - m_10 * m_21 * m_32;
+    inverseMatrix.m_31 = m_01 * m_22 * m_30 - m_02 * m_21 * m_30 + m_02 * m_20 * m_31 - m_00 * m_22 * m_31 -
+                         m_01 * m_20 * m_32 + m_00 * m_21 * m_32;
+    inverseMatrix.m_32 = m_02 * m_11 * m_30 - m_01 * m_12 * m_30 - m_02 * m_10 * m_31 + m_00 * m_12 * m_31 +
+                         m_01 * m_10 * m_32 - m_00 * m_11 * m_32;
+    inverseMatrix.m_33 = m_01 * m_12 * m_20 - m_02 * m_11 * m_20 + m_02 * m_10 * m_21 - m_00 * m_12 * m_21 -
+                         m_01 * m_10 * m_22 + m_00 * m_11 * m_22;
+    inverseMatrix = inverseMatrix * this->Determinant();
     // scale(1 / m_1.Determinant());
     return inverseMatrix;
 }
@@ -238,7 +125,7 @@ Matrix4x4 Matrix4x4::operator*(float scalar) const
     return tempMatrix;
 }
 
-Matrix4x4 Matrix4x4::operator*(Matrix4x4 other) const
+Matrix4x4 Matrix4x4::operator*(const Matrix4x4& other) const
 {
     /*
   http://www.euclideanspace.com/maths/algebra/matrix/resources/code/index.htm#cpp
@@ -311,18 +198,20 @@ void Matrix4x4::Inverse()
 
 float Matrix4x4::Determinant() const
 {
-    float value;
-    value = m_03 * m_12 * m_21 * m_30 - m_02 * m_13 * m_21 * m_30 - m_03 * m_11 * m_22 * m_30 + m_01 * m_13 * m_22 * m_30 + m_02 * m_11 * m_23 * m_30 -
-            m_01 * m_12 * m_23 * m_30 - m_03 * m_12 * m_20 * m_31 + m_02 * m_13 * m_20 * m_31 + m_03 * m_10 * m_22 * m_31 - m_00 * m_13 * m_22 * m_31 -
-            m_02 * m_10 * m_23 * m_31 + m_00 * m_12 * m_23 * m_31 + m_03 * m_11 * m_20 * m_32 - m_01 * m_13 * m_20 * m_32 - m_03 * m_10 * m_21 * m_32 +
-            m_00 * m_13 * m_21 * m_32 + m_01 * m_10 * m_23 * m_32 - m_00 * m_11 * m_23 * m_32 - m_02 * m_11 * m_20 * m_33 + m_01 * m_12 * m_20 * m_33 +
-            m_02 * m_10 * m_21 * m_33 - m_00 * m_12 * m_21 * m_33 - m_01 * m_10 * m_22 * m_33 + m_00 * m_11 * m_22 * m_33;
+    float value =
+        m_03 * m_12 * m_21 * m_30 - m_02 * m_13 * m_21 * m_30 - m_03 * m_11 * m_22 * m_30 + m_01 * m_13 * m_22 * m_30 +
+        m_02 * m_11 * m_23 * m_30 - m_01 * m_12 * m_23 * m_30 - m_03 * m_12 * m_20 * m_31 + m_02 * m_13 * m_20 * m_31 +
+        m_03 * m_10 * m_22 * m_31 - m_00 * m_13 * m_22 * m_31 - m_02 * m_10 * m_23 * m_31 + m_00 * m_12 * m_23 * m_31 +
+        m_03 * m_11 * m_20 * m_32 - m_01 * m_13 * m_20 * m_32 - m_03 * m_10 * m_21 * m_32 + m_00 * m_13 * m_21 * m_32 +
+        m_01 * m_10 * m_23 * m_32 - m_00 * m_11 * m_23 * m_32 - m_02 * m_11 * m_20 * m_33 + m_01 * m_12 * m_20 * m_33 +
+        m_02 * m_10 * m_21 * m_33 - m_00 * m_12 * m_21 * m_33 - m_01 * m_10 * m_22 * m_33 + m_00 * m_11 * m_22 * m_33;
     return value;
 }
 
 Matrix4x4 Matrix4x4::GetTranspose() const
 {
-    Matrix4x4 transpose_matrix = Matrix4x4(m_00, m_01, m_02, m_03, m_10, m_11, m_12, m_13, m_20, m_21, m_22, m_23, m_30, m_31, m_32, m_33);
+    Matrix4x4 transpose_matrix =
+        Matrix4x4(m_00, m_01, m_02, m_03, m_10, m_11, m_12, m_13, m_20, m_21, m_22, m_23, m_30, m_31, m_32, m_33);
     return transpose_matrix;
 }
 
@@ -498,13 +387,13 @@ Matrix4x4::Matrix4x4(const float i_00,
 {
 }
 
-void Matrix4x4::PrintMatrix4x4() const
+std::string Matrix4x4::ToString() const
 {
-    std::cout << "Matrix values is =\n";
-    std::cout << m_00 << ", " << m_01 << ", " << m_02 << ", " << m_03 << std::endl;
-    std::cout << m_10 << ", " << m_11 << ", " << m_12 << ", " << m_13 << std::endl;
-    std::cout << m_20 << ", " << m_21 << ", " << m_22 << ", " << m_23 << std::endl;
-    std::cout << m_30 << ", " << m_31 << ", " << m_32 << ", " << m_33 << std::endl;
+    std::string ret_string = std::format("[ {:<10.5f} {:<10.5f} {:<10.5f} {:<10.5f} ]", m_00, m_01, m_02, m_03);
+    ret_string += std::format("\n[ {:<10.5f} {:<10.5f} {:<10.5f} {:<10.5f} ]", m_10, m_11, m_12, m_13);
+    ret_string += std::format("\n[ {:<10.5f} {:<10.5f} {:<10.5f} {:<10.5f} ]", m_20, m_21, m_22, m_23);
+    ret_string += std::format("\n[ {:<10.5f} {:<10.5f} {:<10.5f} {:<10.5f} ]", m_30, m_31, m_32, m_33);
+    return ret_string;
 }
 
 Matrix4x4 Matrix4x4::CreateShadowMatrix(const Vector3& light_position, const geometry::Plane& plane)

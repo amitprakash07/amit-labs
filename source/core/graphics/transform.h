@@ -1,13 +1,17 @@
 #ifndef CORE_GRAPHICS_TRANSFORM_H_
 #define CORE_GRAPHICS_TRANSFORM_H_
 
-#include <limits>
-
 #include "matrix_4x4.h"
 #include "projection.h"
 #include "vector4.h"
 #include "viewport.h"
 #include "core/graphics_common/graphics_common.h"
+#include "core/graphics_common/render_primitives.h"
+
+namespace amit::maths
+{
+    class Quaternion;
+}
 
 namespace amit::graphics
 {
@@ -31,82 +35,51 @@ namespace amit::graphics
         maths::Matrix4x4 view_matrix;
         maths::Matrix4x4 projection_matrix;
         maths::Matrix4x4 model_view_projection_matrix;
+
+        std::string ToString() const
+        {
+            return std::format("Model Matrix:\n{}\nView Matrix:\n{}\nProjection Matrix:\n{}\nMVP Matrix:\n{}",
+                               model_matrix.ToString(),
+                               view_matrix.ToString(),
+                               projection_matrix.ToString(),
+                               model_view_projection_matrix.ToString());
+        }
     };
 
-    inline maths::Matrix4x4 MakeModelMatrix(const ModelTransform& /*transform*/)
-    {
-        return maths::Matrix4x4::GetIdentityMatrix();
-    }
+    maths::Matrix4x4 MakeModelMatrix(const ModelTransform& transform);
 
-    inline maths::Matrix4x4 MakeViewMatrix(const CameraView& camera_view)
-    {
-        return maths::Matrix4x4::CreateLookAtMatrix(camera_view.position, camera_view.look_at, camera_view.up);
-    }
+    maths::Matrix4x4 MakeScaleMatrix(float x_scale, float y_scale, float z_scale);
 
-    inline TransformMatrices MakeTransformMatrices(const ModelTransform&     model_transform,
-                                                   const CameraView&         camera_view,
-                                                   const PerspectiveFrustum& perspective_frustum)
-    {
-        TransformMatrices result;
+    maths::Matrix4x4 MakeScaleMatrix(const maths::Vector3& scale_factor);
 
-        result.model_matrix                 = MakeModelMatrix(model_transform);
-        result.view_matrix                  = MakeViewMatrix(camera_view);
-        result.projection_matrix            = MakePerspectiveLH(perspective_frustum);
-        result.model_view_projection_matrix = result.projection_matrix * result.view_matrix * result.model_matrix;
-        return result;
-    }
+    maths::Matrix4x4 MakeWorldToViewTransform(const maths::Quaternion& camera_orientation,
+                                              const maths::Vector3&    camera_position);
 
-    inline graphics::VertexAttributes<graphics::ClipSpace> TransformLocalVertexToClipSpace(
+    maths::Matrix4x4 MakeLookAtMatrix(const maths::Vector3& eye,
+                                      const maths::Vector3& target,
+                                      const maths::Vector3& up_vector);
+
+    maths::Matrix4x4 MakeViewMatrix(const CameraView& camera_view);
+
+    TransformMatrices MakeTransformMatrices(const ModelTransform&     model_transform,
+                                            const CameraView&         camera_view,
+                                            const PerspectiveFrustum& perspective_frustum);
+
+    graphics::VertexAttributes<graphics::ClipSpace> TransformLocalVertexToClipSpace(
         const graphics::VertexAttributes<graphics::LocalSpace>& local_vertex,
-        const graphics::TransformMatrices&                      transform_matrices)
-    {
-        const graphics::LocalSpace::Position& local_position = local_vertex.position;
-        const maths::Vector4                  clip_position  = transform_matrices.model_view_projection_matrix.Mul(
-            maths::Vector4{local_position.x, local_position.y, local_position.z, 1.0f});
+        const graphics::TransformMatrices&                      transform_matrices);
 
-        return graphics::VertexAttributes<graphics::ClipSpace>{.position = graphics::ClipSpace::Position{clip_position},
-                                                               .color    = local_vertex.color,
-                                                               .uv       = local_vertex.uv};
-    }
-
-    inline graphics::RenderPrimitiveTriangle<graphics::ClipSpace> TransformLocalTriangleToClipSpace(
+    graphics::RenderPrimitiveTriangle<graphics::ClipSpace> TransformLocalTriangleToClipSpace(
         const graphics::RenderPrimitiveTriangle<graphics::LocalSpace>& local_triangle,
-        const graphics::TransformMatrices&                             transform_matrices)
-    {
-        return {TransformLocalVertexToClipSpace(local_triangle.VertA(), transform_matrices),
-                TransformLocalVertexToClipSpace(local_triangle.VertB(), transform_matrices),
-                TransformLocalVertexToClipSpace(local_triangle.VertC(), transform_matrices)};
-    }
+        const graphics::TransformMatrices&                             transform_matrices);
 
-    inline maths::Vector3 TransformClipSpaceToNdcSpace(const maths::Vector4& attribute)
-    {
-        const float* const clip_components = attribute.AsFloatArray();
-        const float        clip_w          = clip_components[3];
+    graphics::RenderPrimitiveLine<graphics::ClipSpace> TransformLocalLineToClipSpace(
+        const graphics::RenderPrimitiveLine<graphics::LocalSpace>& local_line,
+        const graphics::TransformMatrices&                         transform_matrices);
 
-        maths::Vector3 ndc_space_position{};
-        if (std::abs(clip_w) > std::numeric_limits<float>::epsilon())
-        {
-            const float inv_clip_w = 1.0f / clip_w;
-            ndc_space_position     = maths::Vector3{
-                clip_components[0] * inv_clip_w, clip_components[1] * inv_clip_w, clip_components[2] * inv_clip_w};
-        }
+    maths::Vector3 TransformClipSpaceToNdcSpace(const maths::Vector4& attribute);
 
-        return ndc_space_position;
-    }
-
-    inline maths::Vector3 TransformNdcSpaceToScreenSpace(const Viewport& viewport, const maths::Vector3& ndc_position)
-    {
-        const float x_screen_space =
-            viewport.Origin().x + (ndc_position.x() + 1.0f) * 0.5f * static_cast<float>(viewport.GetWidth().value);
-        const float y_screen_space =
-            viewport.Origin().y + (1.0f - ndc_position.y()) * 0.5f * static_cast<float>(viewport.GetHeight().value);
-
-        return maths::Vector3{
-            x_screen_space,
-            y_screen_space,
-            ndc_position.z()  // Preserve depth for depth testing in screen space.
-        };
-    }
+    maths::Vector3 TransformNdcSpaceToScreenSpace(const Viewport& viewport, const maths::Vector3& ndc_position);
 
 }  // namespace amit::graphics
 

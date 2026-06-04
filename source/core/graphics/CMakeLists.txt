@@ -30,7 +30,9 @@ image_generator.cc
 texture.h
 barycentric_interpolation.h
 transform.h
-projection.h)
+transform.cc
+projection.h
+projection.cc)
 
 file(GLOB FONT8X8_HEADERS CONFIGURE_DEPENDS
   "${PROJECT_EXTERNAL_SOURCE_DIR}/font8x8/*.h")

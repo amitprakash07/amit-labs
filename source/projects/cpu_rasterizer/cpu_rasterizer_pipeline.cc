@@ -13,6 +13,8 @@
 #include "core/graphics/transform.h"
 #include "core/maths/geometry/point.h"
 
+using namespace amit;
+
 namespace amit::cpu_rasterizer
 {
     void RasterizeInScreenSpace(const graphics::Viewport& viewport)
@@ -126,23 +128,18 @@ namespace amit::cpu_rasterizer
 
         std::cout << "Graphics pipeline started\n";
 
-        graphics::ModelTransform model_transform{.translation            = maths::Vector3{0.0f, 0.0f, 0.0f},
-                                                 .rotation_ruler_radians = maths::Vector3{0.0f, 0.0f, 0.0f},
-                                                 .scale                  = maths::Vector3{1.0f, 1.0f, 1.0f}};
+        const graphics::CameraView camera_view{.position = maths::Vector3{0.0f, 0.0f, -10.0f},
+                                               .look_at  = maths::Vector3{0.0f, 0.0f, 0.0f},
+                                               .up       = maths::Vector3{0.0f, 1.0f, 0.0f}};
 
-        graphics::TransformMatrices transform_matrices{
-            .model_matrix                 = graphics::MakeModelMatrix(model_transform),
-            .view_matrix                  = maths::Matrix4x4::GetIdentityMatrix(),
-            .projection_matrix            = maths::Matrix4x4::GetIdentityMatrix(),
-            .model_view_projection_matrix = maths::Matrix4x4::GetIdentityMatrix()};
+        const graphics::PerspectiveFrustum perspective_frustum{
+            .fov_in_radians = maths::ToRadians(60.0f),
+            .aspect_ratio =
+                static_cast<float>(viewport.GetWidth().value) / static_cast<float>(viewport.GetHeight().value),
+            .near_plane = 0.1f,
+            .far_plane  = 100.0f};
 
-        transform_matrices.model_view_projection_matrix =
-            transform_matrices.projection_matrix * transform_matrices.view_matrix * transform_matrices.model_matrix;
-
-        const graphics::RenderPrimitiveTriangle<graphics::ClipSpace> clip_space_triangle_1 =
-            graphics::TransformLocalTriangleToClipSpace(local_space_triangle_1, transform_matrices);
-        const graphics::RenderPrimitiveTriangle<graphics::ClipSpace> clip_space_triangle_2 =
-            graphics::TransformLocalTriangleToClipSpace(local_space_triangle_2, transform_matrices);
+        std::cout << "Frustum\n" << perspective_frustum.ToString() << "\n";
 
         graphics::RenderFrame   render_frame(viewport);
         graphics::RenderOutput& render_output = render_frame.GetRenderOutput();
@@ -172,20 +169,45 @@ namespace amit::cpu_rasterizer
         graphics::DrawOptions draw_options(
             graphics::PrimitiveDrawMode::kSolid, graphics::DrawDebugFlag::kNone, graphics::StatsCollectionLevel::kDraw);
 
-        render::cpu::Rasterizer triangle_rasterizer;
-        triangle_rasterizer.Rasterize(render_frame.GetRenderConfig(),
-                                      render_frame.GetRenderState(),
-                                      render_frame.GetRenderFrameStats(),
-                                      draw_options,
-                                      clip_space_triangle_1,
-                                      color_shader);
+        {
+            render::cpu::Rasterizer        triangle_rasterizer;
+            const graphics::ModelTransform model_transform{.translation            = maths::Vector3{0.0f, 0.0f, 0.0f},
+                                                           .rotation_ruler_radians = maths::Vector3{0.0f, 0.0f, 0.0f},
+                                                           .scale                  = maths::Vector3{5.0f, 5.0f, 1.0f}};
 
-        triangle_rasterizer.Rasterize(render_frame.GetRenderConfig(),
-                                      render_frame.GetRenderState(),
-                                      render_frame.GetRenderFrameStats(),
-                                      draw_options,
-                                      clip_space_triangle_2,
-                                      checkerboard_shader);
+            const graphics::TransformMatrices transform_matrices =
+                graphics::MakeTransformMatrices(model_transform, camera_view, perspective_frustum);
+
+            const graphics::RenderPrimitiveTriangle<graphics::ClipSpace> clip_space_triangle_1 =
+                graphics::TransformLocalTriangleToClipSpace(local_space_triangle_1, transform_matrices);
+
+            triangle_rasterizer.Rasterize(render_frame.GetRenderConfig(),
+                                          render_frame.GetRenderState(),
+                                          render_frame.GetRenderFrameStats(),
+                                          draw_options,
+                                          clip_space_triangle_1,
+                                          color_shader);
+        }
+
+        {
+            render::cpu::Rasterizer        triangle_rasterizer;
+            const graphics::ModelTransform model_transform{.translation            = maths::Vector3{1.0f, 0.0f, -0.5f},
+                                                           .rotation_ruler_radians = maths::Vector3{0.0f, 0.0f, 0.0f},
+                                                           .scale                  = maths::Vector3{5.0f, 5.0f, 1.0f}};
+
+            const graphics::TransformMatrices transform_matrices =
+                graphics::MakeTransformMatrices(model_transform, camera_view, perspective_frustum);
+
+            const graphics::RenderPrimitiveTriangle<graphics::ClipSpace> clip_space_triangle_2 =
+                graphics::TransformLocalTriangleToClipSpace(local_space_triangle_2, transform_matrices);
+
+            triangle_rasterizer.Rasterize(render_frame.GetRenderConfig(),
+                                          render_frame.GetRenderState(),
+                                          render_frame.GetRenderFrameStats(),
+                                          draw_options,
+                                          clip_space_triangle_2,
+                                          checkerboard_shader);
+        }
 
         std::cout << "Graphics pipeline finished\n";
 

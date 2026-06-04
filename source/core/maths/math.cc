@@ -42,7 +42,7 @@ void Math::ClosestPointFromPointOnLineSegment(Vector3 c, Vector3 a,
                                                       Vector3 b, float &t,
                                                       Vector3 &d) {
   Vector3 ab = b - a;
-  // Project c onto ab, computing parameterized position d(t) = a + t*(b – a)
+  // Project c onto ab, computing parameterized position d(t) = a + t*(b ï¿½ a)
   t = (c - a).dot(ab) / ab.dot(ab);
   // If outside segment, clamp t (and therefore d) to the closest endpoint
   if (t < 0.0f) t = 0.0f;

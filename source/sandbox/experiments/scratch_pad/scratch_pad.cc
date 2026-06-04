@@ -250,8 +250,23 @@ void simple_printf(const char* fmt...)  // C-style "const char* fmt, ..." is als
     va_end(args);
 }
 
+void ExperimentVecRotation()
+{
+    std::vector<int> data = {1, 2, 3, 4, 5, 6, 7};
+    
+    std::rotate(data.begin(), data.begin() + 3, data.end());
+
+    for (auto val : data)
+    {
+        std::cout << val << ' ';
+    }
+    std::cout << std::endl;
+}
+
 int main(int argcCount, char* argc[])
 {
+    ExperimentVecRotation();
+
     TestMinFunction();
     decorator::RunTest();
     simple_printf("dcff", 3, 'a', 1.999, 42.5);
