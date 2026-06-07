@@ -1,6 +1,6 @@
-#include "obj_mesh_adapter.h"
-
 #include <cstdint>
+
+#include "obj_mesh_adapter.h"
 
 namespace
 {

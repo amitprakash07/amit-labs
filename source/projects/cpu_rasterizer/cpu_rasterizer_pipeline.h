@@ -5,9 +5,11 @@
 
 namespace amit::cpu_rasterizer
 {
-    void RasterizeInScreenSpace(const graphics::Viewport& viewport);
+    void DemoTriangleRasterizeInScreenSpace(const graphics::Viewport& viewport);
 
-    void RasterizeGraphicsPipeline(const graphics::Viewport& viewport);
+    void DemoTriangleRasterizeGraphicsPipeline(const graphics::Viewport& viewport);
+
+    void DemoObjFormatSceneRasterizeGraphicsPipeline(const graphics::Viewport& viewport);
 
 }  // namespace amit::cpu_rasterizer
 

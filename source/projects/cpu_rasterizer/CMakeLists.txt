@@ -5,6 +5,7 @@ project(${PROJECT_NAME})
 
 set(CPU_RASTERIZER_SOURCES
     cpu_rasterizer_main.cc
+    cpu_rasterizer_pipeline.h
     cpu_rasterizer_pipeline.cc)
 
 include_directories(${PROJECT_SRC_DIR})

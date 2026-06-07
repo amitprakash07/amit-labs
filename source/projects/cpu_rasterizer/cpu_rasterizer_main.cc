@@ -10,7 +10,25 @@ int main(int argc, char* argv[])
 
     amit::graphics::Viewport viewport({.value = 800}, {.value = 600});
 
-    amit::cpu_rasterizer::RasterizeGraphicsPipeline(viewport);
+    enum class DemoConfig : uint8_t
+    {
+        TriangleRasterizeInScreenSpace,
+        TriangleRasterizeGraphicsPipeline,
+        ObjFormatSceneRasterizeGraphicsPipeline
+    } demo_config = DemoConfig::ObjFormatSceneRasterizeGraphicsPipeline;
+
+    switch (demo_config)
+    {
+    case DemoConfig::TriangleRasterizeInScreenSpace:
+        amit::cpu_rasterizer::DemoTriangleRasterizeInScreenSpace(viewport);
+        break;
+    case DemoConfig::TriangleRasterizeGraphicsPipeline:
+        amit::cpu_rasterizer::DemoTriangleRasterizeGraphicsPipeline(viewport);
+        break;
+    case DemoConfig::ObjFormatSceneRasterizeGraphicsPipeline:
+        amit::cpu_rasterizer::DemoObjFormatSceneRasterizeGraphicsPipeline(viewport);
+        break;
+    }
 
     return 0;
 }
