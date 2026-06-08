@@ -15,7 +15,8 @@
 #include "core/graphics/transform.h"
 #include "core/maths/geometry/point.h"
 
-#include "core/graphics_asset_adapter/obj_mesh_adapter.h"
+#include "core/graphics_asset/ObjAdapter.h"
+#include "core/graphics_common/mesh_data.h"
 
 using namespace amit;
 
@@ -228,7 +229,7 @@ namespace amit::cpu_rasterizer
         std::cout << detailed_stats;
     }
 
-    void DemoObjFormatSceneRasterizeGraphicsPipeline(const graphics::Viewport& viewport)
+    void DemoQuadObjModelSceneRasterizeGraphicsPipeline(const graphics::Viewport& viewport)
     {
         graphics::RenderFrame   render_frame(viewport);
         graphics::RenderOutput& render_output = render_frame.GetRenderOutput();
@@ -250,6 +251,80 @@ namespace amit::cpu_rasterizer
             render_output.GetColorBuffer().SetImageData(image_coordinate, checker_texture.Sample(raster_fragment.uv));
         };
 
+        graphics::DrawOptions draw_options(
+            graphics::PrimitiveDrawMode::kSolid, graphics::DrawDebugFlag::kNone, graphics::StatsCollectionLevel::kDraw);
+
+        const graphics::CameraView camera_view{.position = maths::Vector3{0.0f, 0.0f, -10.0f},
+                                               .look_at  = maths::Vector3{0.0f, 0.0f, 0.0f},
+                                               .up       = maths::Vector3{0.0f, 1.0f, 0.0f}};
+
+        const graphics::PerspectiveFrustum perspective_frustum{
+            .fov_in_radians = maths::ToRadians(60.0f),
+            .aspect_ratio =
+                static_cast<float>(viewport.GetWidth().value) / static_cast<float>(viewport.GetHeight().value),
+            .near_plane = 0.1f,
+            .far_plane  = 100.0f};
+
+        const std::filesystem::path texture_quad_obj = std::string(ASSET_DIR "/assets/models/textured_quad.obj");
+
+        graphics_asset::ObjAdapter                           adapter;
+        const std::optional<graphics_asset::ImportHandle> import_handle = adapter.ImportObj(texture_quad_obj);
+        if (!import_handle.has_value())
+        {
+            std::cerr << "Failed to load OBJ mesh: " << texture_quad_obj.string() << '\n';
+            return;
+        }
+
+        const graphics::MeshData& render_mesh = adapter.GetRenderMeshData(import_handle.value());
+
+        std::vector<graphics::RenderPrimitiveTriangle<graphics::LocalSpace>> render_primitives =
+            graphics::ConvertMeshDataToRenderPrimitives(render_mesh);
+
+        const graphics::ModelTransform model_transform{.translation            = maths::Vector3{0.0f, 0.0f, 0.0f},
+                                                       .rotation_ruler_radians = maths::Vector3{0.0f, 0.0f, 0.0f},
+                                                       .scale                  = maths::Vector3{5.0f, 5.0f, 1.0f}};
+
+        const graphics::TransformMatrices transform_matrices =
+            graphics::MakeTransformMatrices(model_transform, camera_view, perspective_frustum);
+
+        for (const graphics::RenderPrimitiveTriangle<graphics::LocalSpace>& local_space_triangle : render_primitives)
+        {
+            render::cpu::Rasterizer triangle_rasterizer;
+
+            const graphics::RenderPrimitiveTriangle<graphics::ClipSpace> clip_space_triangle =
+                graphics::TransformLocalTriangleToClipSpace(local_space_triangle, transform_matrices);
+
+            triangle_rasterizer.Rasterize(render_frame.GetRenderConfig(),
+                                          render_frame.GetRenderState(),
+                                          render_frame.GetRenderFrameStats(),
+                                          draw_options,
+                                          clip_space_triangle,
+                                          checkerboard_shader);
+        }
+
+        std::string overlay_stats = render_frame.GetRenderFrameStats().ToOverlayString();
+
+        graphics::ColorBuffer& color_buffer = render_output.GetColorBuffer();
+        graphics::TextOverlay::Render(overlay_stats, 10, 20, graphics::kRgb8ColorWhite, color_buffer);
+
+        image::WriteColorBufferToPPM(color_buffer, "obj_quad_scene_output.ppm");
+
+        std::cout << "Color buffer saved to disk\n";
+
+        if (draw_options.ShouldCollectDetailedDrawStats())
+        {
+            std::cout << StatsCollector::GetInstance().GetAllStatsAsString() << '\n';
+        }
+    }
+
+    void DemoCornellBoxObjModelSceneRasterizeGraphicsPipeline(const graphics::Viewport& viewport)
+    {
+        graphics::RenderFrame   render_frame(viewport);
+        graphics::RenderOutput& render_output = render_frame.GetRenderOutput();
+
+        graphics::Image2D<graphics::Rgb8> checker_board =
+            graphics::ImageGenerator::GetCheckerBoard({.value = 200}, {.value = 200}, {.value = 8});
+
         auto color_shader = [&render_output](const render::cpu::RasterizedFragment& raster_fragment) {
             graphics::ImageCoordinate image_coordinate{raster_fragment.coordinate.x, raster_fragment.coordinate.y};
             render_output.GetColorBuffer().SetImageData(image_coordinate, raster_fragment.color.ToRgb8());
@@ -269,90 +344,42 @@ namespace amit::cpu_rasterizer
             .near_plane = 0.1f,
             .far_plane  = 100.0f};
 
+        const std::filesystem::path cornell_box_obj =
+            std::string(ASSET_DIR "/assets/models/CornellBox-Original/CornellBox-Original.obj");
+
+        graphics_asset::ObjAdapter                           adapter;
+        const std::optional<graphics_asset::ImportHandle> import_handle = adapter.ImportObj(cornell_box_obj);
+        if (!import_handle.has_value())
         {
-            // Texture Quad
-            const std::filesystem::path texture_quad_obj = std::string(ASSET_DIR "/assets/models/textured_quad.obj");
-
-            const std::optional<amit::asset_loading::ObjMeshData> mesh_data =
-                amit::asset_loading::LoadObjMesh(texture_quad_obj);
-            if (!mesh_data.has_value())
-            {
-                std::cerr << "Failed to load OBJ mesh: " << texture_quad_obj.string() << '\n';
-                return;
-            }
-
-            graphics::MeshData obj_mesh_data =
-                amit::graphics_asset_adapter::ConvertObjMeshToGraphicsMesh(mesh_data.value());
-
-            std::vector<graphics::RenderPrimitiveTriangle<graphics::LocalSpace>> render_primitives =
-                graphics::ConvertMeshDataToRenderPrimitives(obj_mesh_data);
-
-            for (const auto& local_space_triangle : render_primitives)
-            {
-                // Process each render primitive
-                render::cpu::Rasterizer triangle_rasterizer;
-
-                const graphics::ModelTransform model_transform{
-                    .translation            = maths::Vector3{0.0f, 0.0f, 0.0f},
-                    .rotation_ruler_radians = maths::Vector3{0.0f, 0.0f, 0.0f},
-                    .scale                  = maths::Vector3{5.0f, 5.0f, 1.0f}};
-
-                const graphics::TransformMatrices transform_matrices =
-                    graphics::MakeTransformMatrices(model_transform, camera_view, perspective_frustum);
-
-                const graphics::RenderPrimitiveTriangle<graphics::ClipSpace> clip_space_triangle =
-                    graphics::TransformLocalTriangleToClipSpace(local_space_triangle, transform_matrices);
-
-                triangle_rasterizer.Rasterize(render_frame.GetRenderConfig(),
-                                              render_frame.GetRenderState(),
-                                              render_frame.GetRenderFrameStats(),
-                                              draw_options,
-                                              clip_space_triangle,
-                                              checkerboard_shader);
-            }
+            std::cerr << "Failed to load OBJ mesh: " << cornell_box_obj.string() << '\n';
+            return;
         }
 
+        const graphics::MeshData& render_mesh = adapter.GetRenderMeshData(import_handle.value());
+
+        std::vector<graphics::RenderPrimitiveTriangle<graphics::LocalSpace>> render_primitives =
+            graphics::ConvertMeshDataToRenderPrimitives(render_mesh);
+
+        const graphics::ModelTransform model_transform{.translation            = maths::Vector3{0.0f, 0.0f, 0.0f},
+                                                       .rotation_ruler_radians = maths::Vector3{0.0f, 0.0f, 0.0f},
+                                                       .scale                  = maths::Vector3{1.0f, 1.0f, 1.0f}};
+
+        const graphics::TransformMatrices transform_matrices =
+            graphics::MakeTransformMatrices(model_transform, camera_view, perspective_frustum);
+
+        for (const graphics::RenderPrimitiveTriangle<graphics::LocalSpace>& local_space_triangle : render_primitives)
         {
-            const std::filesystem::path cornell_box_obj =
-                std::string(ASSET_DIR "/assets/models/CornellBox-Original/CornellBox-Original.obj");
+            render::cpu::Rasterizer triangle_rasterizer;
 
-            const std::optional<amit::asset_loading::ObjMeshData> mesh_data =
-                amit::asset_loading::LoadObjMesh(cornell_box_obj);
-            if (!mesh_data.has_value())
-            {
-                std::cerr << "Failed to load OBJ mesh: " << cornell_box_obj.string() << '\n';
-                return;
-            }
+            const graphics::RenderPrimitiveTriangle<graphics::ClipSpace> clip_space_triangle =
+                graphics::TransformLocalTriangleToClipSpace(local_space_triangle, transform_matrices);
 
-            graphics::MeshData obj_mesh_data =
-                amit::graphics_asset_adapter::ConvertObjMeshToGraphicsMesh(mesh_data.value());
-
-            std::vector<graphics::RenderPrimitiveTriangle<graphics::LocalSpace>> render_primitives =
-                graphics::ConvertMeshDataToRenderPrimitives(obj_mesh_data);
-
-            for (const auto& local_space_triangle : render_primitives)
-            {
-                // Process each render primitive
-                render::cpu::Rasterizer triangle_rasterizer;
-
-                const graphics::ModelTransform model_transform{
-                    .translation            = maths::Vector3{0.0f, 0.0f, 0.0f},
-                    .rotation_ruler_radians = maths::Vector3{0.0f, 0.0f, 0.0f},
-                    .scale                  = maths::Vector3{5.0f, 5.0f, 1.0f}};
-
-                const graphics::TransformMatrices transform_matrices =
-                    graphics::MakeTransformMatrices(model_transform, camera_view, perspective_frustum);
-
-                const graphics::RenderPrimitiveTriangle<graphics::ClipSpace> clip_space_triangle =
-                    graphics::TransformLocalTriangleToClipSpace(local_space_triangle, transform_matrices);
-
-                triangle_rasterizer.Rasterize(render_frame.GetRenderConfig(),
-                                              render_frame.GetRenderState(),
-                                              render_frame.GetRenderFrameStats(),
-                                              draw_options,
-                                              clip_space_triangle,
-                                              checkerboard_shader);
-            }
+            triangle_rasterizer.Rasterize(render_frame.GetRenderConfig(),
+                                          render_frame.GetRenderState(),
+                                          render_frame.GetRenderFrameStats(),
+                                          draw_options,
+                                          clip_space_triangle,
+                                          color_shader);
         }
 
         std::string overlay_stats = render_frame.GetRenderFrameStats().ToOverlayString();
@@ -360,8 +387,13 @@ namespace amit::cpu_rasterizer
         graphics::ColorBuffer& color_buffer = render_output.GetColorBuffer();
         graphics::TextOverlay::Render(overlay_stats, 10, 20, graphics::kRgb8ColorWhite, color_buffer);
 
-        image::WriteColorBufferToPPM(color_buffer, "obj_scene_output.ppm");
+        image::WriteColorBufferToPPM(color_buffer, "obj_cornell_box_scene_output.ppm");
 
         std::cout << "Color buffer saved to disk\n";
+
+        if (draw_options.ShouldCollectDetailedDrawStats())
+        {
+            std::cout << StatsCollector::GetInstance().GetAllStatsAsString() << '\n';
+        }
     }
 }  // namespace amit::cpu_rasterizer

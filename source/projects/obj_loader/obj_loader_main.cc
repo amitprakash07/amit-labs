@@ -20,6 +20,22 @@ int main(int argc, char* argv[])
     std::cout << "Vertex count: " << mesh_data->vertices.size() << '\n';
     std::cout << "Index count: " << mesh_data->indices.size() << '\n';
     std::cout << "Triangle count: " << mesh_data->indices.size() / 3 << '\n';
+    std::cout << "Material count: " << mesh_data->material_names.size() << '\n';
+    std::cout << "Group count: " << mesh_data->groups.size() << '\n';
+
+    for (const amit::asset_loading::ObjGroup& group : mesh_data->groups)
+    {
+        std::string material_label = "none";
+        if (group.material_id >= 0 &&
+            static_cast<std::size_t>(group.material_id) < mesh_data->material_names.size())
+        {
+            material_label = mesh_data->material_names[static_cast<std::size_t>(group.material_id)];
+        }
+
+        std::cout << "  [" << group.id << "] " << group.name << " material=\"" << material_label
+                  << "\" first_index=" << group.first_index << " index_count=" << group.index_count
+                  << " triangles=" << (group.index_count / 3) << '\n';
+    }
 
     if (!mesh_data->vertices.empty())
     {
@@ -28,6 +44,8 @@ int main(int argc, char* argv[])
                   << first_vertex.position.z << '\n';
         std::cout << "First vertex uv: " << first_vertex.texture_coordinate.u << ", "
                   << first_vertex.texture_coordinate.v << '\n';
+        std::cout << "First vertex color: " << first_vertex.color.r << ", " << first_vertex.color.g << ", "
+                  << first_vertex.color.b << '\n';
     }
 
     return 0;

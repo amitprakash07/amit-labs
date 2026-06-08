@@ -9,7 +9,9 @@ namespace amit::cpu_rasterizer
 
     void DemoTriangleRasterizeGraphicsPipeline(const graphics::Viewport& viewport);
 
-    void DemoObjFormatSceneRasterizeGraphicsPipeline(const graphics::Viewport& viewport);
+    void DemoQuadObjModelSceneRasterizeGraphicsPipeline(const graphics::Viewport& viewport);
+
+    void DemoCornellBoxObjModelSceneRasterizeGraphicsPipeline(const graphics::Viewport& viewport);
 
 }  // namespace amit::cpu_rasterizer
 

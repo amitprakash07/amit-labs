@@ -31,6 +31,26 @@ namespace amit::graphics
         return render_primitives;
     }
 
+    inline std::vector<RenderPrimitiveTriangle<LocalSpace>> ConvertMeshIndexRangeToRenderPrimitives(
+        const MeshData& mesh_data,
+        std::uint32_t   first_index,
+        std::uint32_t   index_count)
+    {
+        std::vector<RenderPrimitiveTriangle<LocalSpace>> render_primitives;
+        render_primitives.reserve(index_count / 3);
+
+        for (std::uint32_t index_offset = first_index; index_offset + 2 < first_index + index_count; index_offset += 3)
+        {
+            const auto& v0 = mesh_data.vertices[mesh_data.indices[index_offset]];
+            const auto& v1 = mesh_data.vertices[mesh_data.indices[index_offset + 1]];
+            const auto& v2 = mesh_data.vertices[mesh_data.indices[index_offset + 2]];
+
+            render_primitives.push_back(RenderPrimitiveTriangle<LocalSpace>(v0, v1, v2));
+        }
+
+        return render_primitives;
+    }
+
 }  // namespace amit::graphics
 
 #endif

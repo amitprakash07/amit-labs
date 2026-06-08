@@ -14,8 +14,9 @@ int main(int argc, char* argv[])
     {
         TriangleRasterizeInScreenSpace,
         TriangleRasterizeGraphicsPipeline,
-        ObjFormatSceneRasterizeGraphicsPipeline
-    } demo_config = DemoConfig::ObjFormatSceneRasterizeGraphicsPipeline;
+        ObjQuadModelRasterizeGraphicsPipeline,
+        ObjCornellBoxModelSceneRasterizeGraphicsPipeline
+    } demo_config = DemoConfig::ObjCornellBoxModelSceneRasterizeGraphicsPipeline;
 
     switch (demo_config)
     {
@@ -25,8 +26,11 @@ int main(int argc, char* argv[])
     case DemoConfig::TriangleRasterizeGraphicsPipeline:
         amit::cpu_rasterizer::DemoTriangleRasterizeGraphicsPipeline(viewport);
         break;
-    case DemoConfig::ObjFormatSceneRasterizeGraphicsPipeline:
-        amit::cpu_rasterizer::DemoObjFormatSceneRasterizeGraphicsPipeline(viewport);
+    case DemoConfig::ObjQuadModelRasterizeGraphicsPipeline:
+        amit::cpu_rasterizer::DemoQuadObjModelSceneRasterizeGraphicsPipeline(viewport);
+        break;
+    case DemoConfig::ObjCornellBoxModelSceneRasterizeGraphicsPipeline:
+        amit::cpu_rasterizer::DemoCornellBoxObjModelSceneRasterizeGraphicsPipeline(viewport);
         break;
     }
 
