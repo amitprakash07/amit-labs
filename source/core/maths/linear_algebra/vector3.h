@@ -49,25 +49,22 @@ namespace amit::maths
 
         float x() const
         {
-            return x_;
+            return data_[0];
         }
 
         float y() const
         {
-            return y_;
+            return data_[1];
         }
 
         float z() const
         {
-            return z_;
+            return data_[2];
         }
 
     private:
-        float  data_[3];
-        float& x_ = data_[0];
-        float& y_ = data_[1];
-        float& z_ = data_[2];
+        float data_[3];
     };
-}  // namespace engine
+}  // namespace amit::maths
 
 #endif  // CORE_MATHS_VECTOR_3_H_

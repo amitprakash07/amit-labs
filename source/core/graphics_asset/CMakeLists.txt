@@ -5,8 +5,8 @@ project(${CORE_PROJECT_NAME})
 message("Processing ${CORE_PROJECT_NAME} - ${CMAKE_CURRENT_LIST_DIR}")
 
 set(CORE_GRAPHICS_ASSET_SOURCES
-    adapter.h
-    adapter.cc)
+    obj_adapter.h
+    obj_adapter.cc)
 
 add_library(${CORE_PROJECT_NAME} ${CORE_GRAPHICS_ASSET_SOURCES})
 

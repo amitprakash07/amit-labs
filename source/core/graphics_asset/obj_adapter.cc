@@ -1,8 +1,7 @@
-#include "ObjAdapter.h"
-
 #include <cstdint>
 #include <stdexcept>
 
+#include "obj_adapter.h"
 #include "core/maths/geometry/point.h"
 
 namespace

@@ -16,8 +16,8 @@
                         clip = local * model * view * projection
                         MVP  = model * view * projection
                 * Translation lives in m_30, m_31, and m_32.
-                * The basis vectors are right-handed:
-                        first vector is right, second vector is up, third vector is back.
+                * View-space basis follows the D3D-style left-handed projection path:
+                        first vector is right, second vector is up, third vector is forward.
 */
 
 #include "vector3.h"

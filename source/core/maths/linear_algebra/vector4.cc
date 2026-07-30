@@ -1,5 +1,6 @@
 #include <cassert>
 #include <cmath>
+#include <cstring>
 #include <iostream>
 
 #include "vector4.h"
@@ -11,48 +12,54 @@ using namespace amit::maths;
 
 Vector4 Vector4::operator+(const Vector4& other) const
 {
-    return Vector4{x_ + other.x_, y_ + other.y_, z_ + other.z_, w_ + other.w_};
+    return Vector4{data_[0] + other.data_[0],
+                   data_[1] + other.data_[1],
+                   data_[2] + other.data_[2],
+                   data_[3] + other.data_[3]};
 }
 
 Vector4& Vector4::operator+=(const Vector4& other)
 {
-    x_ += other.x_;
-    y_ += other.y_;
-    z_ += other.z_;
-    w_ += other.w_;
+    data_[0] += other.data_[0];
+    data_[1] += other.data_[1];
+    data_[2] += other.data_[2];
+    data_[3] += other.data_[3];
     return *this;
 }
 
 Vector4 Vector4::operator-(const Vector4& other) const
 {
-    return Vector4{x_ - other.x_, y_ - other.y_, z_ - other.z_, w_ - other.w_};
+    return Vector4{data_[0] - other.data_[0],
+                   data_[1] - other.data_[1],
+                   data_[2] - other.data_[2],
+                   data_[3] - other.data_[3]};
 }
 
 Vector4& Vector4::operator-=(const Vector4& other)
 {
-    x_ -= other.x_;
-    y_ -= other.y_;
-    z_ -= other.z_;
-    w_ -= other.w_;
+    data_[0] -= other.data_[0];
+    data_[1] -= other.data_[1];
+    data_[2] -= other.data_[2];
+    data_[3] -= other.data_[3];
     return *this;
 }
 
 Vector4 Vector4::operator-() const
 {
-    return Vector4{-x_, -y_, -z_, -w_};
+    return Vector4{-data_[0], -data_[1], -data_[2], -data_[3]};
 }
 
 Vector4 Vector4::operator*(float scalar) const
 {
-    return Vector4{x_ * scalar, y_ * scalar, z_ * scalar, w_ * scalar};
+    return Vector4{data_[0] * scalar, data_[1] * scalar, data_[2] * scalar, data_[3] * scalar};
 }
 
 Vector4& Vector4::operator*=(float scalar)
 {
-    x_ *= scalar;
-    y_ *= scalar;
-    z_ *= scalar;
-    w_ *= scalar;
+    data_[0] *= scalar;
+    data_[1] *= scalar;
+    data_[2] *= scalar;
+    data_[3] *= scalar;
     return *this;
 }
 
@@ -65,17 +72,20 @@ Vector4 Vector4::operator/(float scalar) const
 {
     assert(std::abs(scalar) > kEpsilon);
     const float rhs_reciprocal = 1.0f / scalar;
-    return Vector4{x_ * rhs_reciprocal, y_ * rhs_reciprocal, z_ * rhs_reciprocal, w_ * rhs_reciprocal};
+    return Vector4{data_[0] * rhs_reciprocal,
+                   data_[1] * rhs_reciprocal,
+                   data_[2] * rhs_reciprocal,
+                   data_[3] * rhs_reciprocal};
 }
 
 Vector4& Vector4::operator/=(float scalar)
 {
     assert(std::abs(scalar) > kEpsilon);
     const float rhs_reciprocal = 1.0f / scalar;
-    x_ *= rhs_reciprocal;
-    y_ *= rhs_reciprocal;
-    z_ *= rhs_reciprocal;
-    w_ *= rhs_reciprocal;
+    data_[0] *= rhs_reciprocal;
+    data_[1] *= rhs_reciprocal;
+    data_[2] *= rhs_reciprocal;
+    data_[3] *= rhs_reciprocal;
     return *this;
 }
 
@@ -91,7 +101,7 @@ Vector4& Vector4::operator=(const Vector4& other)
 
 float Vector4::GetLength() const
 {
-    return std::sqrt((x_ * x_) + (y_ * y_) + (z_ * z_) + (w_ * w_));
+    return std::sqrt((data_[0] * data_[0]) + (data_[1] * data_[1]) + (data_[2] * data_[2]) + (data_[3] * data_[3]));
 }
 
 void Vector4::Normalize()
@@ -106,37 +116,38 @@ Vector4 Vector4::GetNormalizedVec() const
     const float length = GetLength();
     assert(length > kEpsilon);
     const float length_reciprocal = 1.0f / length;
-    return Vector4{x_ * length_reciprocal, y_ * length_reciprocal, z_ * length_reciprocal, w_ * length_reciprocal};
+    return Vector4{data_[0] * length_reciprocal,
+                   data_[1] * length_reciprocal,
+                   data_[2] * length_reciprocal,
+                   data_[3] * length_reciprocal};
 }
 
 float Vector4::Dot(const Vector4& other) const
 {
-    return (x_ * other.x_ + y_ * other.y_ + z_ * other.z_ + w_ * other.w_);
+    return (data_[0] * other.data_[0] + data_[1] * other.data_[1] + data_[2] * other.data_[2] +
+            data_[3] * other.data_[3]);
 }
 
 bool Vector4::operator==(const Vector4& other) const
 {
-    return (x_ == other.x_) & (y_ == other.y_) & (z_ == other.z_) & (z_ == other.w_);
+    return (data_[0] == other.data_[0]) & (data_[1] == other.data_[1]) & (data_[2] == other.data_[2]) &
+           (data_[3] == other.data_[3]);
 }
 
 bool Vector4::operator!=(const Vector4& other) const
 {
-    return (x_ != other.x_) | (y_ != other.y_) | (z_ != other.z_) | (w_ != other.w_);
+    return (data_[0] != other.data_[0]) | (data_[1] != other.data_[1]) | (data_[2] != other.data_[2]) |
+           (data_[3] != other.data_[3]);
 }
 
 Vector4::Vector4(float x, float y, float z, float w)
-    : data_{}
+    : data_{x, y, z, w}
 {
-    x_ = x;
-    y_ = y;
-    z_ = z;
-    w_ = w;
 }
 
 std::string Vector4::ToString() const
 {
-    std::string returnString = std::to_string(x_) + std::to_string(y_) + std::to_string(z_);
-    return returnString;
+    return std::to_string(data_[0]) + std::to_string(data_[1]) + std::to_string(data_[2]) + std::to_string(data_[3]);
 }
 
 const float* Vector4::AsFloatArray() const

@@ -15,7 +15,7 @@
 #include "core/graphics/transform.h"
 #include "core/maths/geometry/point.h"
 
-#include "core/graphics_asset/ObjAdapter.h"
+#include "core/graphics_asset/obj_adapter.h"
 #include "core/graphics_common/mesh_data.h"
 
 using namespace amit;
@@ -333,8 +333,8 @@ namespace amit::cpu_rasterizer
         graphics::DrawOptions draw_options(
             graphics::PrimitiveDrawMode::kSolid, graphics::DrawDebugFlag::kNone, graphics::StatsCollectionLevel::kDraw);
 
-        const graphics::CameraView camera_view{.position = maths::Vector3{0.0f, 0.0f, -10.0f},
-                                               .look_at  = maths::Vector3{0.0f, 0.0f, 0.0f},
+        const graphics::CameraView camera_view{.position = maths::Vector3{0.0f, 1.5f, 3.0f},
+                                               .look_at  = maths::Vector3{0.0f, 1.0f, 0.0f},
                                                .up       = maths::Vector3{0.0f, 1.0f, 0.0f}};
 
         const graphics::PerspectiveFrustum perspective_frustum{

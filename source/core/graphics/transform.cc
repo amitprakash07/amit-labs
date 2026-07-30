@@ -37,15 +37,16 @@ namespace amit::graphics
                                       const maths::Vector3& target,
                                       const maths::Vector3& up_vector)
     {
-        const maths::Vector3 forward     = (target - eye).CreateNormalized();
-        const maths::Vector3 left        = up_vector.Cross(forward).CreateNormalized();
-        const maths::Vector3 up          = forward.Cross(left);
-        const maths::Vector3 translation = maths::Vector3{-left.Dot(eye), -up.Dot(eye), -forward.Dot(eye)};
+        const maths::Vector3 forward = (target - eye).CreateNormalized();
+        const maths::Vector3 right   = forward.Cross(up_vector).CreateNormalized();
+        const maths::Vector3 up      = right.Cross(forward);
+        const maths::Vector3 translation =
+            maths::Vector3{-right.Dot(eye), -up.Dot(eye), -forward.Dot(eye)};
 
         // Row-vector layout: translation lives in m_30, m_31, m_32 (bottom row).
-        return maths::Matrix4x4{left.x(),
-                                left.y(),
-                                left.z(),
+        return maths::Matrix4x4{right.x(),
+                                right.y(),
+                                right.z(),
                                 translation.x(),
                                 up.x(),
                                 up.y(),
