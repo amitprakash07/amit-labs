@@ -93,14 +93,14 @@ namespace amit::cpu_rasterizer
         std::string detailed_stats;
         if (draw_options.ShouldCollectDetailedDrawStats())
         {
-            detailed_stats = StatsCollector::GetInstance().GetAllStatsAsString();
+            detailed_stats = common::StatsCollector::GetInstance().GetAllStatsAsString();
         }
 
         graphics::ColorBuffer& color_buffer = render_output.GetColorBuffer();
         graphics::TextOverlay::Render(overlay_stats, 10, 20, graphics::kRgb8ColorWhite, color_buffer);
 
-        image::WriteColorBufferToPPM(color_buffer, "output.ppm");
-        image::WriteColorBufferToPPM(checker_board, "checker_board.ppm");
+        graphics::WriteColorBufferToPPM(color_buffer, "output.ppm");
+        graphics::WriteColorBufferToPPM(checker_board, "checker_board.ppm");
 
         std::cout << "Color buffer saved to disk\n";
 
@@ -216,13 +216,13 @@ namespace amit::cpu_rasterizer
         std::string detailed_stats;
         if (draw_options.ShouldCollectDetailedDrawStats())
         {
-            detailed_stats = StatsCollector::GetInstance().GetAllStatsAsString();
+            detailed_stats = common::StatsCollector::GetInstance().GetAllStatsAsString();
         }
 
         graphics::ColorBuffer& color_buffer = render_output.GetColorBuffer();
         graphics::TextOverlay::Render(overlay_stats, 10, 20, graphics::kRgb8ColorWhite, color_buffer);
 
-        image::WriteColorBufferToPPM(color_buffer, "output_graphics_pipeline.ppm");
+        graphics::WriteColorBufferToPPM(color_buffer, "output_graphics_pipeline.ppm");
 
         std::cout << "Graphics pipeline color buffer saved to disk\n";
         std::cout << overlay_stats;
@@ -267,8 +267,8 @@ namespace amit::cpu_rasterizer
 
         const std::filesystem::path texture_quad_obj = std::string(ASSET_DIR "/assets/models/textured_quad.obj");
 
-        graphics_asset::ObjAdapter                           adapter;
-        const std::optional<graphics_asset::ImportHandle> import_handle = adapter.ImportObj(texture_quad_obj);
+        assets::ObjAdapter                           adapter;
+        const std::optional<assets::ImportHandle> import_handle = adapter.ImportObj(texture_quad_obj);
         if (!import_handle.has_value())
         {
             std::cerr << "Failed to load OBJ mesh: " << texture_quad_obj.string() << '\n';
@@ -307,13 +307,13 @@ namespace amit::cpu_rasterizer
         graphics::ColorBuffer& color_buffer = render_output.GetColorBuffer();
         graphics::TextOverlay::Render(overlay_stats, 10, 20, graphics::kRgb8ColorWhite, color_buffer);
 
-        image::WriteColorBufferToPPM(color_buffer, "obj_quad_scene_output.ppm");
+        graphics::WriteColorBufferToPPM(color_buffer, "obj_quad_scene_output.ppm");
 
         std::cout << "Color buffer saved to disk\n";
 
         if (draw_options.ShouldCollectDetailedDrawStats())
         {
-            std::cout << StatsCollector::GetInstance().GetAllStatsAsString() << '\n';
+            std::cout << common::StatsCollector::GetInstance().GetAllStatsAsString() << '\n';
         }
     }
 
@@ -347,8 +347,8 @@ namespace amit::cpu_rasterizer
         const std::filesystem::path cornell_box_obj =
             std::string(ASSET_DIR "/assets/models/CornellBox-Original/CornellBox-Original.obj");
 
-        graphics_asset::ObjAdapter                           adapter;
-        const std::optional<graphics_asset::ImportHandle> import_handle = adapter.ImportObj(cornell_box_obj);
+        assets::ObjAdapter                           adapter;
+        const std::optional<assets::ImportHandle> import_handle = adapter.ImportObj(cornell_box_obj);
         if (!import_handle.has_value())
         {
             std::cerr << "Failed to load OBJ mesh: " << cornell_box_obj.string() << '\n';
@@ -387,13 +387,13 @@ namespace amit::cpu_rasterizer
         graphics::ColorBuffer& color_buffer = render_output.GetColorBuffer();
         graphics::TextOverlay::Render(overlay_stats, 10, 20, graphics::kRgb8ColorWhite, color_buffer);
 
-        image::WriteColorBufferToPPM(color_buffer, "obj_cornell_box_scene_output.ppm");
+        graphics::WriteColorBufferToPPM(color_buffer, "obj_cornell_box_scene_output.ppm");
 
         std::cout << "Color buffer saved to disk\n";
 
         if (draw_options.ShouldCollectDetailedDrawStats())
         {
-            std::cout << StatsCollector::GetInstance().GetAllStatsAsString() << '\n';
+            std::cout << common::StatsCollector::GetInstance().GetAllStatsAsString() << '\n';
         }
     }
 }  // namespace amit::cpu_rasterizer

@@ -5,7 +5,7 @@
 
 #include "additional_types.h"
 
-namespace engine
+namespace amit::common
 {
 
     // Enum for type of Object property
@@ -66,6 +66,6 @@ namespace engine
         ObjectDefaultPropertyAttributes                      default_attributes_;
         std::map<ObjectProperty, IObjectPropertyAttributes*> object_property_attributes_map_;
     };
-}  // namespace engine
+}  // namespace amit::common
 
 #endif

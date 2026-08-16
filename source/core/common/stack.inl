@@ -8,7 +8,7 @@
 #include "to_str.h"
 
 template <class DataType, uint32_t initial_size>
-amit::Stack<DataType, initial_size>::Stack()
+amit::common::Stack<DataType, initial_size>::Stack()
 {
     if (initial_size < UINT32_MAX)
     {
@@ -24,7 +24,7 @@ amit::Stack<DataType, initial_size>::Stack()
 }
 
 template <class DataType, uint32_t initial_size>
-void amit::Stack<DataType, initial_size>::Push(DataType data)
+void amit::common::Stack<DataType, initial_size>::Push(DataType data)
 {
     if (!empty_)
     {
@@ -50,7 +50,7 @@ void amit::Stack<DataType, initial_size>::Push(DataType data)
 }
 
 template <class DataType, uint32_t initial_size>
-void amit::Stack<DataType, initial_size>::Pop()
+void amit::common::Stack<DataType, initial_size>::Pop()
 {
     if (!empty_)
     {
@@ -63,7 +63,7 @@ void amit::Stack<DataType, initial_size>::Pop()
 }
 
 template <class DataType, uint32_t initial_size>
-DataType amit::Stack<DataType, initial_size>::Top()
+DataType amit::common::Stack<DataType, initial_size>::Top()
 {
     if (!empty_)
     {
@@ -74,7 +74,7 @@ DataType amit::Stack<DataType, initial_size>::Top()
 }
 
 template <class DataType, uint32_t initial_size>
-uint32_t amit::Stack<DataType, initial_size>::Size() const
+uint32_t amit::common::Stack<DataType, initial_size>::Size() const
 {
     if (empty_)
     {
@@ -85,13 +85,13 @@ uint32_t amit::Stack<DataType, initial_size>::Size() const
 }
 
 template <class DataType, uint32_t initial_size>
-bool amit::Stack<DataType, initial_size>::Empty() const
+bool amit::common::Stack<DataType, initial_size>::Empty() const
 {
     return empty_;
 }
 
 template <class DataType, uint32_t initial_size>
-std::string amit::Stack<DataType, initial_size>::Print() const
+std::string amit::common::Stack<DataType, initial_size>::Print() const
 {
     std::string ret_string = {};
     int         iter       = top_index_;
@@ -106,7 +106,7 @@ std::string amit::Stack<DataType, initial_size>::Print() const
 }
 
 template <class DataType, uint32_t initial_size>
-void amit::Stack<DataType, initial_size>::UnitTest()
+void amit::common::Stack<DataType, initial_size>::UnitTest()
 {
     Stack<int> stack1;
     for (int i = 0; i < 100; i = i + 10)
@@ -124,7 +124,7 @@ void amit::Stack<DataType, initial_size>::UnitTest()
 }
 
 template <class DataType, uint32_t initial_size>
-void amit::Stack<DataType, initial_size>::ResizeAndMove(uint32_t new_size)
+void amit::common::Stack<DataType, initial_size>::ResizeAndMove(uint32_t new_size)
 {
     DataType* new_storage = new (std::nothrow) DataType[new_size];
     if (new_storage)

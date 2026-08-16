@@ -3,7 +3,7 @@
 
 #include "engine_core.h"
 
-namespace engine {
+namespace amit {
 struct MouseStates {
   bool leftButtonPressed;
   bool rightButtonPressed;
@@ -29,5 +29,5 @@ struct WindowsParam {
   WPARAM wParam;
   LPARAM lParam;
 };
-}  // namespace engine
+}  // namespace amit
 #endif

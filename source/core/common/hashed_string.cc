@@ -1,7 +1,7 @@
 #include <string>
 
 #include "hashed_string.h"
-namespace engine
+namespace amit::common
 {
     namespace utils
     {
@@ -82,5 +82,5 @@ namespace engine
 
             return hash ^ (hash >> 16);
         }  // end Hash(void*, size_t)
-    }  // end namespace utils
-}  // namespace engine
+    }  // namespace utils
+}  // namespace amit::common

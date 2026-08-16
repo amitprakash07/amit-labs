@@ -4,7 +4,7 @@
 #include <cstdint>
 #include <d3d12.h>
 
-namespace engine
+namespace amit::gpu
 {
     enum GpuDeviceResourceType : uint8_t
     {
@@ -196,5 +196,5 @@ namespace engine
     INSTANTIATE_DEVICE_RESOURCE_CLASS(Fence, ID3D12Fence, GpuFenceDesc);
     INSTANTIATE_DEVICE_RESOURCE_CLASS(RootSignature, ID3D12RootSignature, GpuRootSignatureDesc);
 
-}  // namespace engine
+}  // namespace amit::gpu
 #endif

@@ -46,7 +46,7 @@ Constraints:
 #include <unordered_set>
 #include <vector>
 
-#include "interface.h"
+#include "sandbox/coding_problems/interface.h"
 
 using namespace std;
 

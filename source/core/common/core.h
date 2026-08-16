@@ -5,7 +5,7 @@
 #include <atomic>
 #include <format>
 
-namespace amit
+namespace amit::common
 {
     struct ObjectId
     {
@@ -87,12 +87,12 @@ namespace amit
         ObjectId    object_id;
     };
 
-}  // namespace amit
+}  // namespace amit::common
 
 template <>
-struct std::hash<amit::ObjectId>
+struct std::hash<amit::common::ObjectId>
 {
-    std::size_t operator()(const amit::ObjectId& obj) const noexcept
+    std::size_t operator()(const amit::common::ObjectId& obj) const noexcept
     {
         return std::hash<uint64_t>{}(obj.value());
     }

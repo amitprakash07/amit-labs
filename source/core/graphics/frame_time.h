@@ -6,7 +6,7 @@
 
 #include "../Utilities/RTTI.h"
 
-namespace engine {
+namespace amit::graphics {
 namespace time {
 class FrameTime : public RTTI {
  public:

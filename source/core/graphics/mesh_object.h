@@ -9,7 +9,7 @@
 #include "../../Utilities/IObjectController.h"
 #include "Object.h"
 
-namespace engine {
+namespace amit::graphics {
 class MeshObject : public IMessageHandler, Object {
  public:
   static SharedPointer<MeshObject> CreateMeshObject(

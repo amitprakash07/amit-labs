@@ -65,17 +65,17 @@ namespace amit::graphics
                                             const CameraView&         camera_view,
                                             const PerspectiveFrustum& perspective_frustum);
 
-    graphics::VertexAttributes<graphics::ClipSpace> TransformLocalVertexToClipSpace(
-        const graphics::VertexAttributes<graphics::LocalSpace>& local_vertex,
-        const graphics::TransformMatrices&                      transform_matrices);
+    VertexAttributes<ClipSpace> TransformLocalVertexToClipSpace(
+        const VertexAttributes<LocalSpace>& local_vertex,
+        const TransformMatrices&                      transform_matrices);
 
-    graphics::RenderPrimitiveTriangle<graphics::ClipSpace> TransformLocalTriangleToClipSpace(
-        const graphics::RenderPrimitiveTriangle<graphics::LocalSpace>& local_triangle,
-        const graphics::TransformMatrices&                             transform_matrices);
+    RenderPrimitiveTriangle<ClipSpace> TransformLocalTriangleToClipSpace(
+        const RenderPrimitiveTriangle<LocalSpace>& local_triangle,
+        const TransformMatrices&                             transform_matrices);
 
-    graphics::RenderPrimitiveLine<graphics::ClipSpace> TransformLocalLineToClipSpace(
-        const graphics::RenderPrimitiveLine<graphics::LocalSpace>& local_line,
-        const graphics::TransformMatrices&                         transform_matrices);
+    RenderPrimitiveLine<ClipSpace> TransformLocalLineToClipSpace(
+        const RenderPrimitiveLine<LocalSpace>& local_line,
+        const TransformMatrices&                         transform_matrices);
 
     maths::Vector3 TransformClipSpaceToNdcSpace(const maths::Vector4& attribute);
 

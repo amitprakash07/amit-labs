@@ -21,8 +21,8 @@ void amit::FilePath::Init(const std::string& abs_path)
 {
     if (!abs_path.empty())
     {
-        file_abs_path_         = engine_string_util::ToWinFilePath(abs_path);
-        file_parent_directory_ = engine_string_util::GetWinDirFromAbsPath(abs_path);
+        file_abs_path_         = amit::common::ToWinFilePath(abs_path);
+        file_parent_directory_ = amit::common::GetWinDirFromAbsPath(abs_path);
     }
 }
 

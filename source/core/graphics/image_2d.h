@@ -111,10 +111,10 @@ namespace amit::graphics
 
 }  // namespace amit::graphics
 
-namespace amit::image
+namespace amit::graphics
 {
     void WriteColorBufferToPPM(const amit::graphics::ColorBuffer& color_buffer, const char* filename);
     void WriteDepthBufferToPPM(const amit::graphics::DepthBuffer& depth_buffer, const char* filename);
-}  // namespace amit::image
+}  // namespace amit::graphics
 
 #endif

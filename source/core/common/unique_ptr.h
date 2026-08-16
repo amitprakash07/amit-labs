@@ -1,7 +1,7 @@
 #ifndef CORE_COMMON_UNIQUE_PTR_H_
 #define CORE_COMMON_UNIQUE_PTR_H_
 
-namespace engine
+namespace amit::common
 {
     template <typename T>
     class UniquePtr
@@ -21,5 +21,5 @@ namespace engine
     private:
         T* m_WrappingObject;
     };  // UniquePtr
-}  // namespace engine
+}  // namespace amit::common
 #endif  // header guard

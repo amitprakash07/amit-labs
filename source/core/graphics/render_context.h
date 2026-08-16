@@ -70,14 +70,14 @@ namespace amit::graphics
     class RenderConfig
     {
     public:
-        explicit RenderConfig(const graphics::Viewport& viewport)
+        explicit RenderConfig(const Viewport& viewport)
             : viewport_(viewport)
         {
         }
 
         RenderConfig() = delete;
 
-        const graphics::Viewport& GetViewport() const
+        const Viewport& GetViewport() const
         {
             return viewport_;
         }
@@ -89,7 +89,7 @@ namespace amit::graphics
     class RenderState
     {
     public:
-        explicit RenderState(const graphics::Viewport& viewport)
+        explicit RenderState(const Viewport& viewport)
             : depth_buffer_(viewport.GetWidth(), viewport.GetHeight())
         {
             depth_buffer_.FillImage(std::numeric_limits<float>::infinity());
@@ -168,7 +168,7 @@ namespace amit::graphics
     class RenderFrame
     {
     public:
-        explicit RenderFrame(const graphics::Viewport& viewport)
+        explicit RenderFrame(const Viewport& viewport)
             : render_config_(viewport)
             , render_state_(viewport)
             , render_output_list_()

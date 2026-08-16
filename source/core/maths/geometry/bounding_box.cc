@@ -1,6 +1,6 @@
 #include "bounding_box.h"
 
-using namespace amit;
+using namespace amit::geometry;
 
 bool BoundingBox::DoesCollides(const BoundingBox& other) const
 {
@@ -72,7 +72,7 @@ float BoundingBox::SqDistPointAABB(amit::maths::Vector3 point) const
     return sqDist;
 }
 
-bool geometry::AxisAlignedBoundingBox::IsInside(Point3D point) const
+bool AxisAlignedBoundingBox::IsInside(Point3D point) const
 {
     if (point.x < min_.x || point.x > max_.x)
     {

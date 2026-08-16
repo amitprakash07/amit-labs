@@ -5,7 +5,7 @@
 
 #include <dxgi1_6.h>
 
-namespace engine
+namespace amit::gpu
 {
     class GpuDevice;
 
@@ -33,6 +33,6 @@ namespace engine
         mutable std::vector<GpuDevice*> adapter_devices_;
     };
 
-}  // namespace engine
+}  // namespace amit::gpu
 
 #endif

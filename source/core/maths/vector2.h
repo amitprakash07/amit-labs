@@ -8,7 +8,7 @@ This class represents a position or direction
 // Class Declaration
 //==================
 
-namespace engine {
+namespace amit::maths {
 namespace Math {
 class Vector2 {
   // Interface

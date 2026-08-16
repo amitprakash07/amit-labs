@@ -7,7 +7,7 @@
 
 #define MAKE_STRING(X) #X
 
-namespace engine
+namespace amit::common
 {
     template <typename TypeName>
     std::string ToString()
@@ -30,6 +30,6 @@ namespace engine
         RTTI& operator=(RTTI&&) = default;
     };
 
-}  // namespace engine
+}  // namespace amit::common
 
 #endif

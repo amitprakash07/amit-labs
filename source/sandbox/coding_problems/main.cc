@@ -3,18 +3,18 @@
 #include <set>
 #include <string>
 
-#include "common/linked_list.h"
-#include "common/maths_util.h"
-#include "common/queue.h"
-#include "common/sort.h"
-#include "common/stack.h"
-#include "common/string_util.h"
-#include "common/to_str.h"
-#include "common/tree.h"
-#include "common/util.h"
-#include "interface.h"
-#include "list.h"
-#include "common/HeapContainer.h"
+#include "core/common/heap_container.h"
+#include "core/common/linked_list.h"
+#include "core/common/maths_util.h"
+#include "core/common/queue.h"
+#include "core/common/sort.h"
+#include "core/common/stack.h"
+#include "core/common/string_util.h"
+#include "core/common/to_str.h"
+#include "core/common/tree.h"
+#include "core/common/util.h"
+#include "sandbox/coding_problems/interface.h"
+#include "sandbox/coding_problems/list.h"
 
 int subarraySum(vector<int>& nums, int k) {
   unordered_map<int, int> counts;
@@ -123,8 +123,8 @@ int main(int argCount, char* argc[]) {
   std::vector<int> array = {0, 0, 1, 0, 0, 0, 1, 1};
   int max_length = findMaxLength(array);
   numberOfSubarrays(array, 2);
-  std::vector<int> prefix_array = amit::util::PrefixArray(array);
-  std::cout << amit::util::ToStr(prefix_array);
+  std::vector<int> prefix_array = amit::common::util::PrefixArray(array);
+  std::cout << amit::common::util::ToStr(prefix_array);
   INSTANTIATE_PROBLEM(UniqueEmailAddressProblem);
   INSTANTIATE_PROBLEM(SortedSquareArray);
   INSTANTIATE_PROBLEM(MinStartValueProblem);

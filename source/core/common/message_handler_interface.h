@@ -6,7 +6,7 @@
 #include "additional_types.h"
 #include "hashed_string.h"
 
-namespace engine
+namespace amit::common
 {
     class IMessageHandler : public RTTI
     {
@@ -41,6 +41,6 @@ namespace engine
         }
     };
     typedef _IMessageHandle MessageHandle;
-}  // namespace engine
+}  // namespace amit::common
 
 #endif

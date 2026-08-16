@@ -6,7 +6,7 @@
 #include "additional_types.h"
 #include "rtti.h"
 
-namespace engine
+namespace amit::common
 {
     class StringPool : public RTTI
     {
@@ -31,6 +31,6 @@ namespace engine
         StringPool(StringPool&);
 
     };  // end-StringPool
-}  // namespace engine
+}  // namespace amit::common
 
 #endif

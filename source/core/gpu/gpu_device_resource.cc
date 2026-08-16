@@ -2,7 +2,7 @@
 
 
 template <>
-D3D12_COMMAND_QUEUE_DESC amit::GetDeviceResourceDefaultDesc<D3D12_COMMAND_QUEUE_DESC>()
+D3D12_COMMAND_QUEUE_DESC amit::gpu::GetDeviceResourceDefaultDesc<D3D12_COMMAND_QUEUE_DESC>()
 {
     D3D12_COMMAND_QUEUE_DESC desc{};
     desc.Type     = D3D12_COMMAND_LIST_TYPE_DIRECT;

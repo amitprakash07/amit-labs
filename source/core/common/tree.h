@@ -7,7 +7,7 @@
 
 #include "doubly_linked_list.h"
 
-namespace engine
+namespace amit::common
 {
 
     enum class TreeTraverseOrder
@@ -81,7 +81,7 @@ namespace engine
         void Add(BinaryTreeNode<DataType>* node, DataType data);
     };
 
-}  // namespace engine
+}  // namespace amit::common
 
 #include "tree.inl"
 

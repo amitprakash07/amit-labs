@@ -9,7 +9,7 @@ int main(int argc, char* argv[])
     const std::filesystem::path obj_path =
         argc > 1 ? std::filesystem::path{argv[1]} : std::filesystem::path{"data/assets/models/textured_quad.obj"};
 
-    const std::optional<amit::asset_loading::ObjMeshData> mesh_data = amit::asset_loading::LoadObjMesh(obj_path);
+    const std::optional<amit::assets::ObjMeshData> mesh_data = amit::assets::LoadObjMesh(obj_path);
     if (!mesh_data.has_value())
     {
         std::cerr << "Failed to load OBJ mesh: " << obj_path.string() << '\n';
@@ -23,7 +23,7 @@ int main(int argc, char* argv[])
     std::cout << "Material count: " << mesh_data->material_names.size() << '\n';
     std::cout << "Group count: " << mesh_data->groups.size() << '\n';
 
-    for (const amit::asset_loading::ObjGroup& group : mesh_data->groups)
+    for (const amit::assets::ObjGroup& group : mesh_data->groups)
     {
         std::string material_label = "none";
         if (group.material_id >= 0 &&
@@ -39,7 +39,7 @@ int main(int argc, char* argv[])
 
     if (!mesh_data->vertices.empty())
     {
-        const amit::asset_loading::ObjVertex& first_vertex = mesh_data->vertices.front();
+        const amit::assets::ObjVertex& first_vertex = mesh_data->vertices.front();
         std::cout << "First vertex position: " << first_vertex.position.x << ", " << first_vertex.position.y << ", "
                   << first_vertex.position.z << '\n';
         std::cout << "First vertex uv: " << first_vertex.texture_coordinate.u << ", "

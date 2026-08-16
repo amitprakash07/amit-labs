@@ -11,7 +11,7 @@
 #include "common/defs.h"
 #include "platform/platform_objects.h"
 
-namespace engine
+namespace amit::gpu
 {
     class ShaderHandler
     {
@@ -78,6 +78,6 @@ namespace engine
         IDxcCompiler3*          dxc_compiler_3_ptr_            = nullptr;
         std::vector<ShaderDesc> default_shader_list_;
     };
-}  // namespace engine
+}  // namespace amit::gpu
 
 #endif

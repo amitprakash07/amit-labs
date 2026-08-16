@@ -4,7 +4,7 @@
 #include <cstdint>
 #include <cstring>
 
-namespace engine
+namespace amit::common
 {
     namespace typedefs
     {
@@ -71,6 +71,6 @@ namespace engine
         typedef _String String;
 
     }  // namespace typedefs
-}  // namespace engine
+}  // namespace amit::common
 
 #endif

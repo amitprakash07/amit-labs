@@ -4,7 +4,7 @@
 #include <string>
 #include <vector>
 
-namespace engine
+namespace amit::common
 {
     template <typename DataType>
     class LinkedList
@@ -107,7 +107,7 @@ namespace engine
         size_t count_ = 0;
     };
 
-}  // namespace engine
+}  // namespace amit::common
 
 #include "linked_list.inl"
 

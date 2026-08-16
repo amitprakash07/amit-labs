@@ -2,7 +2,7 @@
 #include "plane.h"
 
 amit::geometry::Plane::Plane(const amit::maths::Vector3& normal, const amit::maths::Vector3& point_on_plane)
-    : Primitive(geometry::PrimitiveType::kPlane)
+    : Primitive(amit::geometry::PrimitiveType::kPlane)
 {
     normal_   = normal;
     float a   = normal.x();

@@ -4,7 +4,7 @@
 #include "rtti.h"
 #include "shared_pointer.h"
 
-namespace engine
+namespace amit::common
 {
     namespace utils
     {
@@ -38,6 +38,6 @@ namespace engine
 #endif
         };
     }  // namespace utils
-}  // namespace engine
+}  // namespace amit::common
 
 #endif

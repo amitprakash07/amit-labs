@@ -15,7 +15,7 @@ namespace
         return color_index + 2 < attrib.colors.size();
     }
 
-    amit::asset_loading::ObjColor GetVertexColor(const tinyobj::attrib_t& attrib, std::size_t vertex_index)
+    amit::assets::ObjColor GetVertexColor(const tinyobj::attrib_t& attrib, std::size_t vertex_index)
     {
         const std::size_t color_index = 3 * vertex_index;
         if (color_index + 2 >= attrib.colors.size())
@@ -26,7 +26,7 @@ namespace
         return {attrib.colors[color_index], attrib.colors[color_index + 1], attrib.colors[color_index + 2]};
     }
 
-    amit::asset_loading::ObjColor GetMaterialDiffuseColor(const std::vector<tinyobj::material_t>& materials,
+    amit::assets::ObjColor GetMaterialDiffuseColor(const std::vector<tinyobj::material_t>& materials,
                                                             int                                     material_id)
     {
         if (material_id < 0 || material_id >= static_cast<int>(materials.size()))
@@ -40,7 +40,7 @@ namespace
                 static_cast<float>(material.diffuse[2])};
     }
 
-    amit::asset_loading::ObjColor ResolveVertexColor(const tinyobj::attrib_t&              attrib,
+    amit::assets::ObjColor ResolveVertexColor(const tinyobj::attrib_t&              attrib,
                                                      std::size_t                           vertex_index,
                                                      const std::vector<tinyobj::material_t>& materials,
                                                      int                                   material_id)
@@ -53,7 +53,7 @@ namespace
         return GetMaterialDiffuseColor(materials, material_id);
     }
 
-    amit::asset_loading::ObjTextureCoordinate GetTextureCoordinate(const tinyobj::attrib_t& attrib,
+    amit::assets::ObjTextureCoordinate GetTextureCoordinate(const tinyobj::attrib_t& attrib,
                                                                    int                     texture_coordinate_index)
     {
         if (texture_coordinate_index < 0)
@@ -70,7 +70,7 @@ namespace
         return {attrib.texcoords[texcoord_index], attrib.texcoords[texcoord_index + 1]};
     }
 
-    std::optional<amit::asset_loading::ObjVertex> MakeVertex(const tinyobj::attrib_t&              attrib,
+    std::optional<amit::assets::ObjVertex> MakeVertex(const tinyobj::attrib_t&              attrib,
                                                              const tinyobj::index_t&               index,
                                                              const std::vector<tinyobj::material_t>& materials,
                                                              int                                   material_id)
@@ -88,7 +88,7 @@ namespace
             return std::nullopt;
         }
 
-        return amit::asset_loading::ObjVertex{
+        return amit::assets::ObjVertex{
             .position           = {attrib.vertices[position_index],
                                    attrib.vertices[position_index + 1],
                                    attrib.vertices[position_index + 2]},
@@ -115,7 +115,7 @@ namespace
 
 }  // namespace
 
-std::optional<amit::asset_loading::ObjMeshData> amit::asset_loading::LoadObjMesh(const std::filesystem::path& file_path)
+std::optional<amit::assets::ObjMeshData> amit::assets::LoadObjMesh(const std::filesystem::path& file_path)
 {
     tinyobj::ObjReaderConfig reader_config;
     reader_config.triangulate  = true;

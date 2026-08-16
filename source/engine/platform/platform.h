@@ -3,7 +3,7 @@
 
 #include <string>
 
-namespace engine
+namespace amit
 {
     class FileSystem;
     class ProcessSystem;
@@ -95,6 +95,6 @@ namespace engine
 
 
 
-}  // namespace engine
+}  // namespace amit
 
 #endif

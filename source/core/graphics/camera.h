@@ -6,7 +6,7 @@
 #include "../enginedefs.h"
 #include "Object.h"
 
-namespace engine {
+namespace amit::graphics {
 class Camera : public IMessageHandler, Object {
  public:
   static SharedPointer<Camera> CreateCamera(

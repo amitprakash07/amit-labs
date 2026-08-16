@@ -3,7 +3,7 @@
 
 #include <string>
 
-namespace engine
+namespace amit::common
 {
     template <typename T>
     class SharedPointer
@@ -30,7 +30,7 @@ namespace engine
         unsigned int* m_referenceCount;
         std::string   m_typeName;
     };  // SharedPointer
-}  // namespace engine
+}  // namespace amit::common
 
 #include "shared_pointer.inl"
 

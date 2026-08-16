@@ -6,7 +6,7 @@
 #include "../../Utilities/SharedPointer.h"
 #include "../enginedefs.h"
 
-namespace engine {
+namespace amit {
 class MouseController : public IMessageHandler {
  public:
   static SharedPointer<MouseController> getMouseController();

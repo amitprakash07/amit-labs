@@ -7,7 +7,7 @@
 #include "../Utilities/IMessageHandler.h"
 #include "../Utilities/SharedPointer.h"
 
-namespace engine {
+namespace amit::graphics {
 namespace Debug {
 class DebugMenu : public IMessageHandler, Object {
  public:

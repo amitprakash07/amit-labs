@@ -1,6 +1,6 @@
 #include "util.h"
 
-namespace engine
+namespace amit::common
 {
     namespace util
     {
@@ -33,4 +33,4 @@ namespace engine
             return std::string(ss.str());
         }
     }  // namespace util
-}  // namespace engine
+}  // namespace amit::common

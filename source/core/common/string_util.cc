@@ -4,8 +4,8 @@
 #include <algorithm>
 #include <map>
 
-using namespace engine_string_util;
-std::string engine_string_util::RemoveString(const std::string& remove_from,
+using namespace amit::common;
+std::string amit::common::RemoveString(const std::string& remove_from,
                                              const std::string& remove_with,
                                              bool               beginning)
 {
@@ -20,7 +20,7 @@ std::string engine_string_util::RemoveString(const std::string& remove_from,
     }
     return returnString;
 }
-std::string engine_string_util::ReverseEachWordsInString(std::string sentence, char separator)
+std::string amit::common::ReverseEachWordsInString(std::string sentence, char separator)
 {
     size_t start_index = 0;
     size_t end_index   = 0;
@@ -52,7 +52,7 @@ std::string engine_string_util::ReverseEachWordsInString(std::string sentence, c
     return sentence;
 }
 
-std::string engine_string_util::ReverseOnlyLetters(std::string s)
+std::string amit::common::ReverseOnlyLetters(std::string s)
 {
     size_t start_index = 0;
     size_t end_index   = s.size();
@@ -80,7 +80,7 @@ std::string engine_string_util::ReverseOnlyLetters(std::string s)
     return s;
 }
 
-bool engine_string_util::IsLetter(char ch)
+bool amit::common::IsLetter(char ch)
 {
     // A-Z : 65 - 90
     // a-z : 97 - 122
@@ -96,7 +96,7 @@ bool engine_string_util::IsLetter(char ch)
 
     return false;
 }
-std::string engine_string_util::RemoveDuplicates(const std::string& s)
+std::string amit::common::RemoveDuplicates(const std::string& s)
 {
     std::stack<char> char_stack{};
     char_stack.push(s[0]);
@@ -127,7 +127,7 @@ std::string engine_string_util::RemoveDuplicates(const std::string& s)
     return ret_str;
 }
 
-size_t engine_string_util::LengthOfLongestSubstring(const std::string& str)
+size_t amit::common::LengthOfLongestSubstring(const std::string& str)
 {
     size_t                 right = 0, left = 0;
     std::map<char, size_t> char_last_index;
@@ -147,7 +147,7 @@ size_t engine_string_util::LengthOfLongestSubstring(const std::string& str)
 
     return max_length;
 }
-std::string engine_string_util::SimplifyPath(const std::string& path)
+std::string amit::common::SimplifyPath(const std::string& path)
 {
     std::string canonical_path;
 
@@ -205,7 +205,7 @@ std::string engine_string_util::SimplifyPath(const std::string& path)
     return canonical_path;
 }
 
-std::string engine_string_util::ToUnixFilePath(const std::string& file_path)
+std::string amit::common::ToUnixFilePath(const std::string& file_path)
 {
     std::string file_path_copy;
     file_path_copy.reserve(file_path.size());
@@ -233,7 +233,7 @@ std::string engine_string_util::ToUnixFilePath(const std::string& file_path)
     return file_path_copy;
 }
 
-std::string engine_string_util::ToWinFilePath(const std::string& file_path)
+std::string amit::common::ToWinFilePath(const std::string& file_path)
 {
     std::string file_path_copy;
     file_path_copy.reserve(file_path.size());
@@ -261,13 +261,13 @@ std::string engine_string_util::ToWinFilePath(const std::string& file_path)
     return file_path_copy;
 }
 
-std::string engine_string_util::GetWinDirFromAbsPath(const std::string& file_path)
+std::string amit::common::GetWinDirFromAbsPath(const std::string& file_path)
 {
     std::string ret_string(file_path.cbegin(), file_path.cbegin() + file_path.find_last_of('\\'));
     return ret_string;
 }
 
-std::string engine_string_util::GetUnixDirFromAbsPath(const std::string& file_path)
+std::string amit::common::GetUnixDirFromAbsPath(const std::string& file_path)
 {
     std::string ret_string(file_path.cbegin(), file_path.cbegin() + file_path.find_last_of("/"));
     return ret_string;

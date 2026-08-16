@@ -30,8 +30,9 @@ All of these triangles are the same.
  */
 
 #include <algorithm>
+#include <cassert>
 
-#include "interface.h"
+#include "sandbox/coding_problems/interface.h"
 
 class DistinctTriangles : public ICodingProblem {
  public:

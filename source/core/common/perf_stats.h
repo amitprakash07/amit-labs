@@ -7,7 +7,7 @@
 
 #include "core.h"
 
-namespace amit
+namespace amit::common
 {
     enum class StatType : uint32_t
     {
@@ -198,6 +198,6 @@ namespace amit
         new_bucket->Init();
         return new_bucket;
     }
-}  // namespace engine
+}  // namespace amit::common
 
 #endif

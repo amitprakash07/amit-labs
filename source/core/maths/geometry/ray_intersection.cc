@@ -1,7 +1,7 @@
 #include "utils.h"
 #include "ray_intersection.h"
 
-using namespace amit;
+using namespace amit::geometry;
 
 HitInfo::HitInfo()
     : distance(amit::maths::kBigFloat)
@@ -9,9 +9,9 @@ HitInfo::HitInfo()
 }
 
 template <>
-bool Ray::Intersect<geometry::Plane>(const geometry::Plane& primitive, HitInfo& hit_info) const
+bool Ray::Intersect<Plane>(const Plane& primitive, HitInfo& hit_info) const
 {
-    const geometry::Plane& plane = primitive;
+    const Plane& plane = primitive;
     float        t     = (plane.Distance() - plane.Normal().Dot(origin)) / plane.Normal().Dot(direction);
 
     if (t >= 0.0f && t <= 1.0f)
@@ -26,17 +26,17 @@ bool Ray::Intersect<geometry::Plane>(const geometry::Plane& primitive, HitInfo& 
 }
 
 template <>
-bool Ray::Intersect<geometry::Sphere>(const geometry::Sphere& primitive, HitInfo& hit_info) const
+bool Ray::Intersect<Sphere>(const Sphere& primitive, HitInfo& hit_info) const
 {
     // Intersects ray r = p + td, |d| = 1, with sphere s and, if intersecting,
     // returns t value of intersection and intersection point q
 
-    const geometry::Sphere& sphere = primitive;
+    const Sphere& sphere = primitive;
     maths::Vector3          m      = origin - sphere.centre;
     float                   b      = m.Dot(direction);
     float                   c      = m.Dot(m) - sphere.radius * sphere.radius;
 
-    // Exit if r’s origin outside s (c > 0) and r pointing away from s (b > 0)
+    // Exit if râ€™s origin outside s (c > 0) and r pointing away from s (b > 0)
     if (c > 0.0f && b > 0.0f)
     {
         return false;
@@ -139,15 +139,15 @@ bool Ray::Intersect<BoundingBox>(const BoundingBox& primitive, HitInfo& hit_info
 }
 
 template <>
-bool Ray::Intersect<geometry::Triangle>(const geometry::Triangle& primitive, HitInfo& hit_info) const
+bool Ray::Intersect<Triangle>(const Triangle& primitive, HitInfo& hit_info) const
 {
     primitive;
     hit_info;
     return false;
-    /*const geometry::Triangle& triangle = primitive;
-    const geometry::Vertex&   vertex_a = triangle.Vert_A();
-    const geometry::Vertex&   vertex_b = triangle.Vert_B();
-    const geometry::Vertex&   vertex_c = triangle.Vert_C();
+    /*const Triangle& triangle = primitive;
+    const Vertex&   vertex_a = triangle.Vert_A();
+    const Vertex&   vertex_b = triangle.Vert_B();
+    const Vertex&   vertex_c = triangle.Vert_C();
 
     Vector3 normal               = (vertex_b - vertex_a).Cross(vertex_c - vertex_a);
     Vector3 face_normal_normalized = normal.CreateNormalized();

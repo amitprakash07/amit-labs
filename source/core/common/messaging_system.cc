@@ -4,7 +4,7 @@
 
 #include "messaging_system.h"
 
-using namespace engine;
+using namespace amit::common;
 
 SharedPointer<MessagingSystem> MessagingSystem::mMessagingSystem;
 
@@ -12,8 +12,8 @@ SharedPointer<MessagingSystem> MessagingSystem::getMessagingSystem()
 {
     if (mMessagingSystem.isNull())
     {
-        /*mMessagingSystem = EngineController::Gameamit::isEngineInitialized() ?
-            new(EngineController::Gameamit::getMemoryManager()->__alloc(sizeof(MessagingSystem)))
+        /*mMessagingSystem = EngineController::Gameamit::common::isEngineInitialized() ?
+            new(EngineController::Gameamit::common::getMemoryManager()->__alloc(sizeof(MessagingSystem)))
        MessagingSystem() : new MessagingSystem();*/
 
         SharedPointer<MessagingSystem> temp(SharedPointer<MessagingSystem>(new MessagingSystem(), "MessagingSystem"));

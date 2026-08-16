@@ -7,7 +7,7 @@
 #include "heap_container.h"
 #include "util.h"
 
-namespace engine
+namespace amit::common
 {
     template <typename DataType, HeapType type, size_t init_size>
     HeapContainer<DataType, type, init_size>::HeapContainer(std::vector<DataType> init_data)
@@ -75,6 +75,6 @@ namespace engine
         HeapContainer<int> int_heap({3, 2, 4, 1, 5, 9});
         std::cout << int_heap.ToStr().c_str();
     }
-}  // namespace engine
+}  // namespace amit::common
 
 #endif

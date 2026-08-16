@@ -8,7 +8,7 @@
 #define CORE_SHADER_DIR ""
 #endif
 
-namespace engine
+namespace amit::common
 {
     template <class T>
     concept IntType = std::is_integral_v<T>;
@@ -22,6 +22,6 @@ namespace engine
     template <class T>
     concept FloatType = std::is_floating_point_v<T>;
 
-}  // namespace engine
+}  // namespace amit::common
 
 #endif

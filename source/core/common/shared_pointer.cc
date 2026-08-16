@@ -2,7 +2,7 @@
 
 #include "shared_pointer.h"
 
-namespace engine
+namespace amit::common
 {
     template <typename T>
     inline SharedPointer<T>::SharedPointer()
@@ -94,8 +94,8 @@ m_referenceCount = i_other.m_referenceCount;
         {
             if ((*m_referenceCount - 1) == 0)
             {
-                // EngineController::Gameamit::isEngineInitialized() ?
-                // EngineController::Gameamit::getMemoryManager()->__free(m_WrappingObject)
+                // EngineController::Gameamit::common::isEngineInitialized() ?
+                // EngineController::Gameamit::common::getMemoryManager()->__free(m_WrappingObject)
                 // : delete m_WrappingObject;
                 if (m_WrappingObject)
                     delete m_WrappingObject;
@@ -138,4 +138,4 @@ inline SharedPointer<RTTI> SharedPointer<T>::getRawPointer() const
         return returnPointer;
     }
 
-}  // namespace engine
+}  // namespace amit::common

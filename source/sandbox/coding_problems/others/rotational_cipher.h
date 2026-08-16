@@ -4,7 +4,7 @@
 #include <cassert>
 #include <string>
 
-#include "interface.h"
+#include "sandbox/coding_problems/interface.h"
 
 using namespace std;
 

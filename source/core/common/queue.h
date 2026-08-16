@@ -3,7 +3,7 @@
 
 #include <cstdint>
 
-namespace engine
+namespace amit::common
 {
     template <class DataType, uint64_t initial_size = 100>
     class Queue
@@ -28,7 +28,7 @@ namespace engine
         uint64_t  max_container_element_count_;
     };
 
-}  // namespace engine
+}  // namespace amit::common
 
 #include "queue.inl"
 

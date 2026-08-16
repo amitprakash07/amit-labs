@@ -4,7 +4,7 @@
 #include <cstdint>
 #include <vector>
 
-namespace engine
+namespace amit::common
 {
     constexpr char    kDecimalInChars[] = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9'};
     constexpr char    kHexInChars[] = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'};
@@ -24,7 +24,7 @@ namespace engine
     template <>
     char* ToStr<int>(const int& data);
 
-}  // namespace engine
+}  // namespace amit::common
 
 #include "to_str.inl"
 

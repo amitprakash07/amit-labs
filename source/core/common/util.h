@@ -4,7 +4,7 @@
 #include <sstream>
 #include <vector>
 
-namespace engine
+namespace amit::common
 {
     namespace util
     {
@@ -12,5 +12,5 @@ namespace engine
         std::string      ToStr(const std::vector<int>& input_array);
 
     }  // namespace util
-}  // namespace engine
+}  // namespace amit::common
 #endif

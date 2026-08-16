@@ -8,7 +8,7 @@
 
 #include "gpu_device_resource.h"
 
-namespace engine
+namespace amit::gpu
 {
      class GpuDevice
     {
@@ -42,15 +42,15 @@ namespace engine
         std::map<GpuDeviceResourceType, std::vector<GpuDeviceResourceCommon*>> device_resources_map_;
         std::map<D3D12_COMMAND_LIST_TYPE, ID3D12CommandAllocator*>             cmd_allocators_map_by_type_;
     };
-}  // namespace engine
+}  // namespace amit::gpu
 
 template <>
-amit::GpuDeviceResource<ID3D12CommandList>* amit::GpuDevice::Create<ID3D12CommandList, amit::GpuCmdListDesc>(
-    const amit::GpuCmdListDesc& desc);
+amit::gpu::GpuDeviceResource<ID3D12CommandList>* amit::gpu::GpuDevice::Create<ID3D12CommandList, amit::gpu::GpuCmdListDesc>(
+    const amit::gpu::GpuCmdListDesc& desc);
 
 #define DECLARE_SPECIALIZED_CREATE_D3D_DESC(resource_type, resource_ptr_type, resource_desc) \
     template <>                                                                              \
-    amit::GpuDeviceResource<resource_ptr_type>* amit::GpuDevice::Create(const resource_desc& desc)
+    amit::gpu::GpuDeviceResource<resource_ptr_type>* amit::gpu::GpuDevice::Create(const resource_desc& desc)
 
 DECLARE_SPECIALIZED_CREATE_D3D_DESC(CmdQueue, ID3D12CommandQueue, D3D12_COMMAND_QUEUE_DESC);
 DECLARE_SPECIALIZED_CREATE_D3D_DESC(ComputePipeline, ID3D12PipelineState, D3D12_COMPUTE_PIPELINE_STATE_DESC);
@@ -61,8 +61,8 @@ DECLARE_SPECIALIZED_CREATE_D3D_DESC(QueryHeap, ID3D12QueryHeap, D3D12_QUERY_HEAP
 
 #define DECLARE_SPECIALIZED_CREATE(resource_type, resource_ptr_type, resource_desc) \
     template <>                                                                     \
-    amit::GpuDeviceResource<resource_ptr_type>* amit::GpuDevice::Create(        \
-        const amit::GpuDeviceResourceDesc<resource_desc>& desc)
+    amit::gpu::GpuDeviceResource<resource_ptr_type>* amit::gpu::GpuDevice::Create(        \
+        const amit::gpu::GpuDeviceResourceDesc<resource_desc>& desc)
 
 DECLARE_SPECIALIZED_CREATE(CommittedResource, ID3D12Resource, GpuCommittedResDesc);
 DECLARE_SPECIALIZED_CREATE(PlacedResource, ID3D12Resource, GpuPlacedResDesc);

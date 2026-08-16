@@ -8,7 +8,7 @@
 #include "bounding_box.h"
 #include "triangle.h"
 
-namespace amit
+namespace amit::geometry
 {
     struct HitInfo
     {
@@ -31,18 +31,22 @@ namespace amit
         amit::maths::Vector3 direction;
     };
 
-}  // namespace engine
+}  // namespace amit::geometry
 
 template <>
-bool amit::Ray::Intersect<amit::geometry::Plane>(const geometry::Plane& primitive, HitInfo& hit_info) const;
+bool amit::geometry::Ray::Intersect<amit::geometry::Plane>(const amit::geometry::Plane& primitive,
+                                                           amit::geometry::HitInfo&     hit_info) const;
 
 template <>
-bool amit::Ray::Intersect<amit::geometry::Sphere>(const geometry::Sphere& primitive, HitInfo& hit_info) const;
+bool amit::geometry::Ray::Intersect<amit::geometry::Sphere>(const amit::geometry::Sphere& primitive,
+                                                            amit::geometry::HitInfo&      hit_info) const;
 
 template <>
-bool amit::Ray::Intersect<amit::BoundingBox>(const BoundingBox& primitive, HitInfo& hit_info) const;
+bool amit::geometry::Ray::Intersect<amit::geometry::BoundingBox>(const amit::geometry::BoundingBox& primitive,
+                                                                 amit::geometry::HitInfo&           hit_info) const;
 
 template <>
-bool amit::Ray::Intersect<amit::geometry::Triangle>(const geometry::Triangle& primitive, HitInfo& hit_info) const;
+bool amit::geometry::Ray::Intersect<amit::geometry::Triangle>(const amit::geometry::Triangle& primitive,
+                                                              amit::geometry::HitInfo&        hit_info) const;
 
 #endif

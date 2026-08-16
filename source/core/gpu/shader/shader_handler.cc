@@ -9,14 +9,14 @@
 #include "platform/platform_objects.h"
 #include "platform/platform_systems.h"
 
-amit::ShaderHandler* amit::ShaderHandler::shader_handler_singleton_ptr_ = nullptr;
+amit::gpu::ShaderHandler* amit::gpu::ShaderHandler::shader_handler_singleton_ptr_ = nullptr;
 
-std::wstring engine_string_util::ToWideString(const std::string& in)
+std::wstring amit::common::ToWideString(const std::string& in)
 {
     return std::wstring{in.cbegin(), in.cend()};
 }
 
-bool amit::ShaderHandler::Init()
+bool amit::gpu::ShaderHandler::Init()
 {
     if (shader_handler_singleton_ptr_ == nullptr)
     {
@@ -27,7 +27,7 @@ bool amit::ShaderHandler::Init()
     return success;
 }
 
-amit::ShaderHandler* amit::ShaderHandler::Instance()
+amit::gpu::ShaderHandler* amit::gpu::ShaderHandler::Instance()
 {
     if (Init())
     {
@@ -37,14 +37,14 @@ amit::ShaderHandler* amit::ShaderHandler::Instance()
     return nullptr;
 }
 
-bool amit::ShaderHandler::DenInit()
+bool amit::gpu::ShaderHandler::DenInit()
 {
     delete shader_handler_singleton_ptr_;
     shader_handler_singleton_ptr_ = nullptr;
     return true;
 }
 
-bool amit::ShaderHandler::CompileDefaultShaders()
+bool amit::gpu::ShaderHandler::CompileDefaultShaders()
 {
     if (PopulateShaderDesc())
     {
@@ -59,7 +59,7 @@ bool amit::ShaderHandler::CompileDefaultShaders()
     return false;
 }
 
-amit::ShaderHandler::ShaderDesc::ShaderDesc(const nlohmann::json& json_shader_dec_obj)
+amit::gpu::ShaderHandler::ShaderDesc::ShaderDesc(const nlohmann::json& json_shader_dec_obj)
     : shader_bin_out_file_(FilePath(""))
     , shader_authored_file_(FilePath(""))
 {
@@ -78,7 +78,7 @@ amit::ShaderHandler::ShaderDesc::ShaderDesc(const nlohmann::json& json_shader_de
                       std::string(shader_authored_file_.GetMetaData().GetFileNameWithoutExtension()) + ".out"));
 }
 
-bool amit::ShaderHandler::CompileDefaultShadersUsingDxc()
+bool amit::gpu::ShaderHandler::CompileDefaultShadersUsingDxc()
 {
     bool              success = false;
     std::stringstream ss;
@@ -116,7 +116,7 @@ bool amit::ShaderHandler::CompileDefaultShadersUsingDxc()
     return success;
 }
 
-bool amit::ShaderHandler::CompileDefaultShadersUsingDxcApi()
+bool amit::gpu::ShaderHandler::CompileDefaultShadersUsingDxcApi()
 {
     if (dxc_compiler_3_ptr_ != nullptr && dxc_util_ptr_ != nullptr)
     {
@@ -129,22 +129,22 @@ bool amit::ShaderHandler::CompileDefaultShadersUsingDxcApi()
             for (const ShaderDesc& shader_desc : default_shader_list_)
             {
                 args.emplace_back(L"-T");
-                args.emplace_back(engine_string_util::ToWideString(shader_desc.profile_));
+                args.emplace_back(amit::common::ToWideString(shader_desc.profile_));
                 args.emplace_back(L"-E");
-                args.emplace_back(engine_string_util::ToWideString(shader_desc.entry_point_));
+                args.emplace_back(amit::common::ToWideString(shader_desc.entry_point_));
 
                 if (!shader_desc.macros_.empty())
                 {
                     args.emplace_back(L"-D");
-                    args.emplace_back(engine_string_util::ToWideString(shader_desc.macros_));
+                    args.emplace_back(amit::common::ToWideString(shader_desc.macros_));
                 }
 
                 args.emplace_back(L"-Fo");
-                args.emplace_back(engine_string_util::ToWideString(std::string(shader_desc.GetOutPath())));
+                args.emplace_back(amit::common::ToWideString(std::string(shader_desc.GetOutPath())));
 
                 IDxcBlobEncoding* source_blob = nullptr;
                 dxc_util_ptr_->LoadFile(
-                    engine_string_util::ToWideString(shader_desc.GetAuthoredShaderFile().GetPath().AsCharArray())
+                    amit::common::ToWideString(shader_desc.GetAuthoredShaderFile().GetPath().AsCharArray())
                         .c_str(),
                     nullptr,
                     &source_blob);
@@ -214,7 +214,7 @@ bool amit::ShaderHandler::CompileDefaultShadersUsingDxcApi()
     return false;
 }
 
-bool amit::ShaderHandler::InstanceInit()
+bool amit::gpu::ShaderHandler::InstanceInit()
 {
     DxcCreateInstance(CLSID_DxcUtils, __uuidof(IDxcUtils), reinterpret_cast<void**>(&dxc_util_ptr_));
     DxcCreateInstance(CLSID_DxcCompiler, __uuidof(IDxcCompiler3), reinterpret_cast<void**>(&dxc_compiler_3_ptr_));
@@ -222,7 +222,7 @@ bool amit::ShaderHandler::InstanceInit()
     return dxc_compiler_3_ptr_ != nullptr && dxc_util_ptr_ != nullptr;
 }
 
-bool amit::ShaderHandler::PopulateShaderDesc()
+bool amit::gpu::ShaderHandler::PopulateShaderDesc()
 {
     File shader_asset(FilePath(kCoreShaderDir, kCoreShaderAssetDescFileName));
     if (shader_asset.Open())

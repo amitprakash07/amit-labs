@@ -4,7 +4,7 @@
 #include "../EngineCore/Objects/MeshObject.h"
 #include "../Utilities/SharedPointer.h"
 
-namespace engine {
+namespace amit {
 namespace Networking {
 
 class NetworkPlayer : public RakNet::NetworkIDObject {

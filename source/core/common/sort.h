@@ -5,7 +5,7 @@
 
 #include "defs.h"
 
-namespace engine
+namespace amit::common
 {
     class Sort
     {
@@ -24,6 +24,6 @@ namespace engine
         template <typename T>
         static void Merge(T* o_list, unsigned int iStart, unsigned int middle, unsigned int iEnd, int (*SortingFunc)(T i_A, T i_B) = nullptr);
     };
-}  // namespace engine
+}  // namespace amit::common
 
 #endif

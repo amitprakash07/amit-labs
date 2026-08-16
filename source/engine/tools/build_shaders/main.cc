@@ -2,5 +2,5 @@
 
 int main(char* args[], int arg_count)
 {
-    amit::ShaderHandler::Instance()->CompileDefaultShaders();
+    amit::gpu::ShaderHandler::Instance()->CompileDefaultShaders();
 }

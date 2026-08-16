@@ -15,8 +15,8 @@ namespace amit::geometry
 
         Plane(const maths::Vector3& normal, const maths::Vector3& point_on_plane);
         Plane()
-            : Primitive(geometry::PrimitiveType::kPlane)
-            , normal_(geometry::kYAxis)
+            : Primitive(PrimitiveType::kPlane)
+            , normal_(kYAxis)
             , distance_(0.0f)
         {
         }

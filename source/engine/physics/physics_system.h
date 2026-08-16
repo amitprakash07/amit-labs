@@ -15,9 +15,9 @@
 
 
 
-using namespace engine;
+using namespace amit::common;
 
-namespace engine {
+namespace amit {
 namespace Physics {
 class HitInfo;
 

@@ -29,7 +29,7 @@ return the number of different addresses that actually receive mails.
 #include <unordered_set>
 #include <vector>
 
-#include "interface.h"
+#include "sandbox/coding_problems/interface.h"
 
 class UniqueEmailAddressProblem : public ICodingProblem {
  public:

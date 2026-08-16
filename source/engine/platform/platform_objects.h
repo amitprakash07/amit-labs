@@ -6,7 +6,7 @@
 
 #include "common/string_util.h"
 
-namespace engine
+namespace amit
 {
     enum class FileOpenMode
     {
@@ -179,6 +179,6 @@ namespace engine
         FileMetaData file_meta_data_;
     };
 
-}  // namespace engine
+}  // namespace amit
 
 #endif

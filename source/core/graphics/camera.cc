@@ -6,7 +6,7 @@
 
 #include "camera.h"
 
-using namespace engine;
+using namespace amit::graphics;
 
 SharedPointer<Camera> Camera::CreateCamera(
     std::string i_name, Math::Vector3 i_position,

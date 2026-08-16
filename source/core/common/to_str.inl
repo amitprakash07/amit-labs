@@ -4,7 +4,7 @@
 #include "to_str.h"
 
 template <>
-inline char* amit::ToStr<int>(const int& data)
+inline char* amit::common::ToStr<int>(const int& data)
 {
     char* ret_char_array                          = kCharArrayStorageFor32BitData;
     ret_char_array[kMaxCharArraySizeFor32Bit - 1] = '\0';

@@ -2,7 +2,7 @@
 
 #include "image_2d.h"
 
-void amit::image::WriteColorBufferToPPM(const amit::graphics::ColorBuffer& color_buffer, const char* filename)
+void amit::graphics::WriteColorBufferToPPM(const amit::graphics::ColorBuffer& color_buffer, const char* filename)
 {
     FILE*  file     = fopen(filename, "wb");
     int    result   = fprintf(file,
@@ -18,7 +18,7 @@ void amit::image::WriteColorBufferToPPM(const amit::graphics::ColorBuffer& color
     result_2;
 }
 
-void amit::image::WriteDepthBufferToPPM(const amit::graphics::DepthBuffer& depth_buffer, const char* filename)
+void amit::graphics::WriteDepthBufferToPPM(const amit::graphics::DepthBuffer& depth_buffer, const char* filename)
 {
     FILE*  file     = fopen(filename, "wb");
     int    result   = fprintf(file,

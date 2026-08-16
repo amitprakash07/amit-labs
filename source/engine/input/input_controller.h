@@ -5,7 +5,7 @@
 #include "../../Utilities/RTTI.h"
 #include "../../Utilities/SharedPointer.h"
 
-namespace engine {
+namespace amit {
 class InputController : public IMessageHandler {
  public:
   static SharedPointer<InputController> getInputController();

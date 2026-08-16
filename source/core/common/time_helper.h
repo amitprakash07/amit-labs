@@ -3,7 +3,7 @@
 
 #include <stdint.h>
 
-namespace engine
+namespace amit::common
 {
     namespace time
     {
@@ -12,7 +12,7 @@ namespace engine
         inline uint32_t getTimeDiff(const uint64_t, const uint64_t);
         inline uint32_t getTickDifference(uint64_t, uint64_t);
     }  // namespace time
-}  // namespace engine
+}  // namespace amit::common
 
 #include "time_helper.inl"
 

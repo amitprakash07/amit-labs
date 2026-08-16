@@ -1,7 +1,7 @@
 #ifndef SANDBOX_CODING_PROBLEMS_OTHERS_PASSING_YEAR_BOOKS_H
 #define SANDBOX_CODING_PROBLEMS_OTHERS_PASSING_YEAR_BOOKS_H
 
-#include "interface.h"
+#include "sandbox/coding_problems/interface.h"
 
 class PassingYearBooks : public ICodingProblem {
  public:

@@ -5,7 +5,7 @@
 #include "../../Core/Utilities/SharedPointer.h"
 #include "NetworkDefs.h"
 
-namespace engine {
+namespace amit {
 
 namespace Networking {
 class NetworkManager {

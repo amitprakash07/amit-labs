@@ -1,7 +1,7 @@
 #include "hashed_string.h"
 #include "string_pool.h"
 
-using namespace engine;
+using namespace amit::common;
 
 SharedPointer<StringPool> StringPool::string_pool_instance_;
 
@@ -9,9 +9,9 @@ SharedPointer<StringPool> StringPool::Instance()
 {
     if (string_pool_instance_.isNull())
     {
-        /*string_pool_instance_ = EngineController::Gameamit::isEngineInitialized() ?
+        /*string_pool_instance_ = EngineController::Gameamit::common::isEngineInitialized() ?
             new
-       (EngineController::Gameamit::getMemoryManager()->__alloc(sizeof(StringPool)))
+       (EngineController::Gameamit::common::getMemoryManager()->__alloc(sizeof(StringPool)))
        StringPool() :
     */
         SharedPointer<StringPool> tempPool(new StringPool(), "StringPool");

@@ -3,16 +3,16 @@
 
 #include <stack>
 
-#include "common/util.h"
+#include "util.h"
 #include "queue.h"
 #include "tree.h"
 
 template <class DataType>
-void amit::BinaryTree<DataType>::Construct(std::vector<DataType> data)
+void amit::common::BinaryTree<DataType>::Construct(std::vector<DataType> data)
 {
     root       = new BinaryTreeNode<DataType>();
     root->data = data[0];
-    amit::Queue<BinaryTreeNode<DataType>*> queue;
+    amit::common::Queue<BinaryTreeNode<DataType>*> queue;
     queue.Push(root);
 
     size_t iter = 1;
@@ -48,7 +48,7 @@ void amit::BinaryTree<DataType>::Construct(std::vector<DataType> data)
 }
 
 template <class DataType>
-void amit::BinaryTree<DataType>::Traverse(const BinaryTreeNode<DataType>* tree_node,
+void amit::common::BinaryTree<DataType>::Traverse(const BinaryTreeNode<DataType>* tree_node,
                                             TreeTraverseOrder               order,
                                             std::vector<DataType>&          out) const
 {
@@ -84,7 +84,7 @@ void amit::BinaryTree<DataType>::Traverse(const BinaryTreeNode<DataType>* tree_n
 }
 
 template <class DataType>
-uint32_t amit::BinaryTree<DataType>::FindDepth(BinaryTreeNode<DataType>* node_to_found)
+uint32_t amit::common::BinaryTree<DataType>::FindDepth(BinaryTreeNode<DataType>* node_to_found)
 {
     bool     found = false;
     uint32_t depth = FindDepthHelper(root, node_to_found, found);
@@ -92,7 +92,7 @@ uint32_t amit::BinaryTree<DataType>::FindDepth(BinaryTreeNode<DataType>* node_to
 }
 
 template <class DataType>
-uint32_t amit::BinaryTree<DataType>::FindDepth(DataType node_to_found)
+uint32_t amit::common::BinaryTree<DataType>::FindDepth(DataType node_to_found)
 {
     bool     found = false;
     uint32_t depth = FindDepthHelper(root, node_to_found, found);
@@ -100,7 +100,7 @@ uint32_t amit::BinaryTree<DataType>::FindDepth(DataType node_to_found)
 }
 
 template <class DataType>
-void amit::BinaryTree<DataType>::UnitTest()
+void amit::common::BinaryTree<DataType>::UnitTest()
 {
     {
         BinaryTree<int> int_tree;
@@ -167,7 +167,7 @@ void amit::BinaryTree<DataType>::UnitTest()
 }
 
 template <class DataType>
-uint32_t amit::BinaryTree<DataType>::FindDepthHelper(BinaryTreeNode<DataType>* node,
+uint32_t amit::common::BinaryTree<DataType>::FindDepthHelper(BinaryTreeNode<DataType>* node,
                                                        BinaryTreeNode<DataType>* find,
                                                        bool&                     is_found)
 {
@@ -197,7 +197,7 @@ uint32_t amit::BinaryTree<DataType>::FindDepthHelper(BinaryTreeNode<DataType>* n
 }
 
 template <class DataType>
-uint32_t amit::BinaryTree<DataType>::FindDepthHelper(BinaryTreeNode<DataType>* node, DataType find, bool& is_found)
+uint32_t amit::common::BinaryTree<DataType>::FindDepthHelper(BinaryTreeNode<DataType>* node, DataType find, bool& is_found)
 {
     if (node == nullptr)
     {
@@ -230,7 +230,7 @@ uint32_t amit::BinaryTree<DataType>::FindDepthHelper(BinaryTreeNode<DataType>* n
 }
 
 template <class DataType>
-void amit::BinaryTree<DataType>::TraverseIteratively(const BinaryTreeNode<DataType>* tree_node,
+void amit::common::BinaryTree<DataType>::TraverseIteratively(const BinaryTreeNode<DataType>* tree_node,
                                                        TreeTraverseOrder               order,
                                                        std::vector<DataType>&          out) const
 {
@@ -270,7 +270,7 @@ void amit::BinaryTree<DataType>::TraverseIteratively(const BinaryTreeNode<DataTy
 }
 
 template <class DataType>
-void amit::BinarySearchTree<DataType>::Construct(std::vector<DataType> data)
+void amit::common::BinarySearchTree<DataType>::Construct(std::vector<DataType> data)
 {
     for (DataType datum : data)
     {
@@ -279,7 +279,7 @@ void amit::BinarySearchTree<DataType>::Construct(std::vector<DataType> data)
 }
 
 template <class DataType>
-void amit::BinarySearchTree<DataType>::Add(DataType data)
+void amit::common::BinarySearchTree<DataType>::Add(DataType data)
 {
     if (BinaryTree<DataType>::root == nullptr)
     {
@@ -293,7 +293,7 @@ void amit::BinarySearchTree<DataType>::Add(DataType data)
 }
 
 template <class DataType>
-DoublyLinkedList<DataType> amit::BinarySearchTree<DataType>::Convert()
+DoublyLinkedList<DataType> amit::common::BinarySearchTree<DataType>::Convert()
 {
     std::vector<DataType> out;
     BinaryTree<DataType>::Traverse(BinaryTree<DataType>::root, TreeTraverseOrder::InOrder, out);
@@ -301,19 +301,19 @@ DoublyLinkedList<DataType> amit::BinarySearchTree<DataType>::Convert()
 }
 
 template <class DataType>
-void amit::BinarySearchTree<DataType>::UnitTest()
+void amit::common::BinarySearchTree<DataType>::UnitTest()
 {
     BinarySearchTree<int> int_bst;
     int_bst.Construct({10, 5, 15, 3, 8, 11, 7});
     std::vector<int> tree_traverse;
     int_bst.Traverse(int_bst.Root(), TreeTraverseOrder::InOrder, tree_traverse);
-    std::cout << amit::util::ToStr(tree_traverse);
+    std::cout << amit::common::util::ToStr(tree_traverse);
     DoublyLinkedList<int> int_dll = int_bst.Convert();
     std::cout << int_dll.ToStr();
 }
 
 template <class DataType>
-void amit::BinarySearchTree<DataType>::Add(BinaryTreeNode<DataType>* node, DataType data)
+void amit::common::BinarySearchTree<DataType>::Add(BinaryTreeNode<DataType>* node, DataType data)
 {
     BinaryTreeNode<DataType>* next  = node;
     bool                      added = false;

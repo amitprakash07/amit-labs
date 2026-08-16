@@ -3,7 +3,7 @@
 
 #include "os/os_file_system.h"
 
-namespace engine {
+namespace amit {
 class EngineCore {
  public:
   static EngineCore* Instance();

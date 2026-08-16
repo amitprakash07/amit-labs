@@ -17,11 +17,11 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine
     MessageBox(nullptr, "Testing the Win Main", "Testing", MB_OK);
 
     {
-        amit::GpuFactory gpu;
+        amit::gpu::GpuFactory gpu;
 
         if (gpu.Initialize())
         {
-            amit::GpuDevice* device = gpu.GetDevice();
+            amit::gpu::GpuDevice* device = gpu.GetDevice();
             if (device)
             {
                 device->UnitTest();
@@ -30,45 +30,45 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine
     }
 
     {
-        //amit::ShaderHandler::Init();
-        amit::ShaderHandler::Instance()->CompileDefaultShaders();
+        //amit::gpu::ShaderHandler::Init();
+        amit::gpu::ShaderHandler::Instance()->CompileDefaultShaders();
     }
 
     {
-        amit::HeapContainer<int>::UnitTest();
-        amit::BinarySearchTree<int>::UnitTest();
+        amit::common::HeapContainer<int>::UnitTest();
+        amit::common::BinarySearchTree<int>::UnitTest();
     }
 
     {
         // Bubble sort
         std::vector<int> data = {5, 8, 9, 2, 6, 7, 3, 1, 4};
-        std::cout << amit::util::ToStr(data);
-        amit::Sort::BubbleSort(data);
-        std::cout << amit::util::ToStr(data);
+        std::cout << amit::common::util::ToStr(data);
+        amit::common::Sort::BubbleSort(data);
+        std::cout << amit::common::util::ToStr(data);
     }
 
     {
-        std::cout << amit::maths::GetHCF(119, 544);
-        amit::BinaryTree<int>::UnitTest();
-        amit::Queue<int>::UnitTest();
-        amit::Stack<int>::UnitTest();
+        std::cout << amit::common::maths::GetHCF(119, 544);
+        amit::common::BinaryTree<int>::UnitTest();
+        amit::common::Queue<int>::UnitTest();
+        amit::common::Stack<int>::UnitTest();
     }
 
     {
-        char*       to_char_array = amit::ToStr(32);
+        char*       to_char_array = amit::common::ToStr(32);
         std::string temp_string(to_char_array);
         std::cout << temp_string.c_str();
-        std::cout << std::string(amit::ToStr(-6748)).c_str();
+        std::cout << std::string(amit::common::ToStr(-6748)).c_str();
     }
 
     {
-        amit::LinkedList<int>::UnitTest();
+        amit::common::LinkedList<int>::UnitTest();
     }
 
     {
-        std::cout << engine_string_util::SimplifyPath("/.../a/../b/c/../d/./");
-        std::cout << engine_string_util::SimplifyPath("/../");
-        std::cout << engine_string_util::SimplifyPath("/home/user/Documents/../Pictures");
-        std::cout << engine_string_util::RemoveDuplicates("abbaca");
+        std::cout << amit::common::SimplifyPath("/.../a/../b/c/../d/./");
+        std::cout << amit::common::SimplifyPath("/../");
+        std::cout << amit::common::SimplifyPath("/home/user/Documents/../Pictures");
+        std::cout << amit::common::RemoveDuplicates("abbaca");
     }
 }

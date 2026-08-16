@@ -1,8 +1,8 @@
 #include "sphere.h"
 
-using namespace amit;
+using namespace amit::geometry;
 
-bool geometry::Sphere::DoesIntersect(const Sphere& other) const
+bool Sphere::DoesIntersect(const Sphere& other) const
 {
     maths::Vector3 d     = centre - other.centre;
     float   dist2 = d.Dot(d);

@@ -8,7 +8,7 @@
 #include "to_str.h"
 
 template <class DataType, uint64_t initial_size>
-amit::Queue<DataType, initial_size>::Queue()
+amit::common::Queue<DataType, initial_size>::Queue()
 {
     storage_ = new (std::nothrow) DataType[initial_size];
 
@@ -21,7 +21,7 @@ amit::Queue<DataType, initial_size>::Queue()
 }
 
 template <class DataType, uint64_t initial_size>
-void amit::Queue<DataType, initial_size>::Push(const DataType& data)
+void amit::common::Queue<DataType, initial_size>::Push(const DataType& data)
 {
     if (!empty_)
     {
@@ -83,7 +83,7 @@ void amit::Queue<DataType, initial_size>::Push(const DataType& data)
 }
 
 template <class DataType, uint64_t initial_size>
-void amit::Queue<DataType, initial_size>::Pop()
+void amit::common::Queue<DataType, initial_size>::Pop()
 {
     if (!empty_)
     {
@@ -104,7 +104,7 @@ void amit::Queue<DataType, initial_size>::Pop()
 }
 
 template <class DataType, uint64_t initial_size>
-DataType amit::Queue<DataType, initial_size>::Front() const
+DataType amit::common::Queue<DataType, initial_size>::Front() const
 {
     if (!empty_)
     {
@@ -115,7 +115,7 @@ DataType amit::Queue<DataType, initial_size>::Front() const
 }
 
 template <class DataType, uint64_t initial_size>
-DataType amit::Queue<DataType, initial_size>::Back() const
+DataType amit::common::Queue<DataType, initial_size>::Back() const
 {
     if (!empty_)
     {
@@ -126,7 +126,7 @@ DataType amit::Queue<DataType, initial_size>::Back() const
 }
 
 template <class DataType, uint64_t initial_size>
-size_t amit::Queue<DataType, initial_size>::Size() const
+size_t amit::common::Queue<DataType, initial_size>::Size() const
 {
     if (!empty_)
     {
@@ -142,13 +142,13 @@ size_t amit::Queue<DataType, initial_size>::Size() const
 }
 
 template <class DataType, uint64_t initial_size>
-bool amit::Queue<DataType, initial_size>::Empty() const
+bool amit::common::Queue<DataType, initial_size>::Empty() const
 {
     return empty_;
 }
 
 template <class DataType, uint64_t initial_size>
-std::string amit::Queue<DataType, initial_size>::Print() const
+std::string amit::common::Queue<DataType, initial_size>::Print() const
 {
     std::string ret_string = {};
     if (!empty_)
@@ -186,7 +186,7 @@ std::string amit::Queue<DataType, initial_size>::Print() const
 }
 
 template <class DataType, uint64_t initial_size>
-void amit::Queue<DataType, initial_size>::UnitTest()
+void amit::common::Queue<DataType, initial_size>::UnitTest()
 {
     Queue<int, 5> int_queue;
     int_queue.Push(5);

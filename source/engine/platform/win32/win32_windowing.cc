@@ -31,7 +31,7 @@ void amit::Window::SetToFullResolution()
     height = fullResolution.bottom;
 }
 
-namespace engine
+namespace amit
 {
     namespace util
     {
@@ -76,7 +76,7 @@ namespace engine
             return wnd_class_ex;
         }
     }  // namespace util
-}  // namespace engine
+}  // namespace amit
 
 amit::WindowingSystem::WindowingSystem(int win_main_display_state)
     : IPlatformSystem(PlatformHandlerType::Windowing)
@@ -260,59 +260,59 @@ amit::WindowHandle amit::WindowingSystem::ConstructWindow(const Window* window_i
 //        //}
 //        // If the key press wasn't handled pass it on to Windows to process in the
 //        // default way
-//        amit::utils::StringHash temp = amit::EngineCore::getStringPool()->FindString("KeyDown");
-//        amit::SharedPointer<amit::Windows::WindowingSystem> tempWindowingSystem =
+//        amit::common::utils::StringHash temp = amit::EngineCore::getStringPool()->FindString("KeyDown");
+//        amit::common::SharedPointer<amit::Windows::WindowingSystem> tempWindowingSystem =
 //            amit::EngineCore::getWindowingSystem();
 //        amit::EngineCore::getMessagingSystem()->sendMessage(
-//            temp, tempWindowingSystem.CastSharedPointer<amit::RTTI>(), reinterpret_cast<void*>(i_wParam));
+//            temp, tempWindowingSystem.CastSharedPointer<amit::common::RTTI>(), reinterpret_cast<void*>(i_wParam));
 //        break;
 //    }
 //    case WM_KEYDOWN:
 //    {
-//        amit::utils::StringHash temp = amit::EngineCore::getStringPool()->FindString("KeyDown");
-//        amit::SharedPointer<amit::Windows::WindowingSystem> tempWindowingSystem =
+//        amit::common::utils::StringHash temp = amit::EngineCore::getStringPool()->FindString("KeyDown");
+//        amit::common::SharedPointer<amit::Windows::WindowingSystem> tempWindowingSystem =
 //            amit::EngineCore::getWindowingSystem();
 //        amit::EngineCore::getMessagingSystem()->sendMessage(
-//            temp, tempWindowingSystem.CastSharedPointer<amit::RTTI>(), reinterpret_cast<void*>(i_wParam));
+//            temp, tempWindowingSystem.CastSharedPointer<amit::common::RTTI>(), reinterpret_cast<void*>(i_wParam));
 //        break;
 //    }
 //    case WM_LBUTTONDOWN:
 //    {
-//        amit::utils::StringHash temp = amit::EngineCore::getStringPool()->FindString("MouseButtonDownEvent");
-//        amit::SharedPointer<amit::MouseController> tempMouseController =
+//        amit::common::utils::StringHash temp = amit::EngineCore::getStringPool()->FindString("MouseButtonDownEvent");
+//        amit::common::SharedPointer<amit::MouseController> tempMouseController =
 //            amit::EngineCore::getMouseInputController();
 //        WindowsParam windowsParameter;
 //        windowsParameter.windowsMessage = i_message;
 //        windowsParameter.wParam         = i_wParam;
 //        windowsParameter.lParam         = i_lParam;
 //        amit::EngineCore::getMessagingSystem()->sendMessage(
-//            temp, tempMouseController.CastSharedPointer<amit::RTTI>(), reinterpret_cast<void*>(&windowsParameter));
+//            temp, tempMouseController.CastSharedPointer<amit::common::RTTI>(), reinterpret_cast<void*>(&windowsParameter));
 //        break;
 //    }
 //    case WM_MOUSEMOVE:
 //    {
-//        amit::utils::StringHash temp = amit::EngineCore::getStringPool()->FindString("MouseMoveEvent");
-//        amit::SharedPointer<amit::MouseController> tempMouseController =
+//        amit::common::utils::StringHash temp = amit::EngineCore::getStringPool()->FindString("MouseMoveEvent");
+//        amit::common::SharedPointer<amit::MouseController> tempMouseController =
 //            amit::EngineCore::getMouseInputController();
 //        WindowsParam windowsParameter;
 //        windowsParameter.windowsMessage = i_message;
 //        windowsParameter.wParam         = i_wParam;
 //        windowsParameter.lParam         = i_lParam;
 //        amit::EngineCore::getMessagingSystem()->sendMessage(
-//            temp, tempMouseController.CastSharedPointer<amit::RTTI>(), reinterpret_cast<void*>(&windowsParameter));
+//            temp, tempMouseController.CastSharedPointer<amit::common::RTTI>(), reinterpret_cast<void*>(&windowsParameter));
 //        break;
 //    }
 //    case WM_LBUTTONUP:
 //    {
-//        amit::utils::StringHash temp = amit::EngineCore::getStringPool()->FindString("MouseButtonUpEvent");
-//        amit::SharedPointer<amit::MouseController> tempMouseController =
+//        amit::common::utils::StringHash temp = amit::EngineCore::getStringPool()->FindString("MouseButtonUpEvent");
+//        amit::common::SharedPointer<amit::MouseController> tempMouseController =
 //            amit::EngineCore::getMouseInputController();
 //        WindowsParam windowsParameter;
 //        windowsParameter.windowsMessage = i_message;
 //        windowsParameter.wParam         = i_wParam;
 //        windowsParameter.lParam         = i_lParam;
 //        amit::EngineCore::getMessagingSystem()->sendMessage(
-//            temp, tempMouseController.CastSharedPointer<amit::RTTI>(), reinterpret_cast<void*>(&windowsParameter));
+//            temp, tempMouseController.CastSharedPointer<amit::common::RTTI>(), reinterpret_cast<void*>(&windowsParameter));
 //        break;
 //    }
 //

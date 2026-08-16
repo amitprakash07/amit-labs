@@ -14,7 +14,7 @@
 #include "Camera.h"
 #include "MeshObject.h"
 
-namespace engine {
+namespace amit::graphics {
 class Scene : public Object, IMessageHandler {
  public:
   static SharedPointer<Scene> CreateNewScene(std::string);

@@ -2,7 +2,7 @@
 
 #include "unique_ptr.h"
 
-namespace engine
+namespace amit::common
 {
     template <typename T>
     UniquePtr<T>::UniquePtr()
@@ -57,4 +57,4 @@ namespace engine
         assert(m_WrappingObject);
         return m_WrappingObject;
     }
-}  // namespace engine
+}  // namespace amit::common

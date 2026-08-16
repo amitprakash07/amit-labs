@@ -21,14 +21,14 @@ namespace
         return static_cast<std::uint8_t>(channel_value * 255.0f);
     }
 
-    amit::graphics::Rgb8 ToRgb8(const amit::asset_loading::ObjColor& color)
+    amit::graphics::Rgb8 ToRgb8(const amit::assets::ObjColor& color)
     {
         return {ToRgbChannel(color.r), ToRgbChannel(color.g), ToRgbChannel(color.b)};
     }
 
 }  // namespace
 
-const amit::graphics_asset::ObjAdapter::ImportRecord& amit::graphics_asset::ObjAdapter::GetImportRecord(
+const amit::assets::ObjAdapter::ImportRecord& amit::assets::ObjAdapter::GetImportRecord(
     ImportHandle handle) const
 {
     const auto import_record = imports_.find(handle.value);
@@ -40,14 +40,14 @@ const amit::graphics_asset::ObjAdapter::ImportRecord& amit::graphics_asset::ObjA
     return import_record->second;
 }
 
-amit::graphics::MeshData amit::graphics_asset::ObjAdapter::ConvertToRenderMesh(
-    const asset_loading::ObjMeshData& source_mesh)
+amit::graphics::MeshData amit::assets::ObjAdapter::ConvertToRenderMesh(
+    const assets::ObjMeshData& source_mesh)
 {
     graphics::MeshData render_mesh;
     render_mesh.vertices.reserve(source_mesh.vertices.size());
     render_mesh.indices.reserve(source_mesh.indices.size());
 
-    for (const asset_loading::ObjVertex& source_vertex : source_mesh.vertices)
+    for (const assets::ObjVertex& source_vertex : source_mesh.vertices)
     {
         render_mesh.vertices.push_back(graphics::VertexAttributes<graphics::LocalSpace>{
             .position = graphics::LocalSpace::Position{geometry::Point3D{source_vertex.position.x,
@@ -62,10 +62,10 @@ amit::graphics::MeshData amit::graphics_asset::ObjAdapter::ConvertToRenderMesh(
     return render_mesh;
 }
 
-std::optional<amit::graphics_asset::ImportHandle> amit::graphics_asset::ObjAdapter::ImportObj(
+std::optional<amit::assets::ImportHandle> amit::assets::ObjAdapter::ImportObj(
     const std::filesystem::path& file_path)
 {
-    const std::optional<asset_loading::ObjMeshData> source_mesh = asset_loading::LoadObjMesh(file_path);
+    const std::optional<assets::ObjMeshData> source_mesh = assets::LoadObjMesh(file_path);
     if (!source_mesh.has_value())
     {
         return std::nullopt;
@@ -78,12 +78,12 @@ std::optional<amit::graphics_asset::ImportHandle> amit::graphics_asset::ObjAdapt
     return handle;
 }
 
-const amit::graphics::MeshData& amit::graphics_asset::ObjAdapter::GetRenderMeshData(ImportHandle handle) const
+const amit::graphics::MeshData& amit::assets::ObjAdapter::GetRenderMeshData(ImportHandle handle) const
 {
     return GetImportRecord(handle).render;
 }
 
-const amit::asset_loading::ObjMeshData& amit::graphics_asset::ObjAdapter::GetObjMeshData(ImportHandle handle) const
+const amit::assets::ObjMeshData& amit::assets::ObjAdapter::GetObjMeshData(ImportHandle handle) const
 {
     return GetImportRecord(handle).source;
 }

@@ -1,7 +1,7 @@
 #ifndef CORE_COMMON_MATHS_UTIL_H
 #define CORE_COMMON_MATHS_UTIL_H
 
-namespace engine
+namespace amit::common
 {
     namespace maths
     {
@@ -18,5 +18,5 @@ namespace engine
             return GetHCF(a, b);
         }
     }  // namespace maths
-}  // namespace engine
+}  // namespace amit::common
 #endif

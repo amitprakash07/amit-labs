@@ -5,7 +5,7 @@
 
 using amit::maths::Vector3;
 
-namespace engine {
+namespace amit::maths {
 namespace Math {
 class Plane {
  public:

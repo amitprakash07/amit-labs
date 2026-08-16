@@ -2,11 +2,11 @@
 
 #include "perf_stats.h"
 
-uint64_t amit::Stat::stat_timer_id_counter_           = static_cast<uint64_t>(StatType::kTimer);
-uint64_t amit::Stat::stat_counter_id_counter_         = static_cast<uint64_t>(StatType::kCounter);
-uint64_t amit::IStatsBucket::stats_bucket_id_counter_ = 0;
+uint64_t amit::common::Stat::stat_timer_id_counter_           = static_cast<uint64_t>(StatType::kTimer);
+uint64_t amit::common::Stat::stat_counter_id_counter_         = static_cast<uint64_t>(StatType::kCounter);
+uint64_t amit::common::IStatsBucket::stats_bucket_id_counter_ = 0;
 
-amit::Stat::Stat(StatType type, const std::string& name)
+amit::common::Stat::Stat(StatType type, const std::string& name)
     : type_(type)
     , name_(name)
 {
@@ -20,7 +20,7 @@ amit::Stat::Stat(StatType type, const std::string& name)
     }
 }
 
-std::string amit::IStatsBucket::ToString() const
+std::string amit::common::IStatsBucket::ToString() const
 {
     std::string ret_string = std::format("\n{}\n", name_);
 
@@ -37,14 +37,14 @@ std::string amit::IStatsBucket::ToString() const
     return ret_string;
 }
 
-amit::IStatsBucket::IStatsBucket(const std::string& name)
+amit::common::IStatsBucket::IStatsBucket(const std::string& name)
     : name_(name)
     , stat_bucket_label_(StatType::kStatBucket)
 {
     bucket_id_ = ++stats_bucket_id_counter_;
 }
 
-std::shared_ptr<amit::TimerStat> amit::IStatsBucket::GetOrCreateTimerStat(const std::string& name)
+std::shared_ptr<amit::common::TimerStat> amit::common::IStatsBucket::GetOrCreateTimerStat(const std::string& name)
 {
     if (!timer_stats_.contains(name))
     {
@@ -54,7 +54,7 @@ std::shared_ptr<amit::TimerStat> amit::IStatsBucket::GetOrCreateTimerStat(const 
     return timer_stats_[name];
 }
 
-std::shared_ptr<amit::CounterStat> amit::IStatsBucket::GetOrCreateCounterStat(const std::string& name)
+std::shared_ptr<amit::common::CounterStat> amit::common::IStatsBucket::GetOrCreateCounterStat(const std::string& name)
 {
     if (!counter_stats_.contains(name))
     {

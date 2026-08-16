@@ -6,7 +6,7 @@
 
 #include "heap_container.h"
 
-namespace engine
+namespace amit::common
 {
 
     enum class HeapType
@@ -73,7 +73,7 @@ namespace engine
         HeapType              heap_type_   = type;
     };
 
-}  // namespace engine
+}  // namespace amit::common
 
 #include "heap_container.inl"
 

@@ -7,7 +7,7 @@
 #include <string>
 #include <vector>
 
-namespace amit::asset_loading
+namespace amit::assets
 {
     struct ObjPosition
     {
@@ -58,6 +58,6 @@ namespace amit::asset_loading
 
     std::optional<ObjMeshData> LoadObjMesh(const std::filesystem::path& file_path);
 
-}  // namespace amit::asset_loading
+}  // namespace amit::assets
 
 #endif

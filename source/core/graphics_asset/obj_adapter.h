@@ -9,7 +9,7 @@
 #include "core/asset_loading/obj_loader.h"
 #include "core/graphics_common/mesh_data.h"
 
-namespace amit::graphics_asset
+namespace amit::assets
 {
     struct ImportHandle
     {
@@ -29,16 +29,16 @@ namespace amit::graphics_asset
         std::optional<ImportHandle> ImportObj(const std::filesystem::path& file_path);
 
         const graphics::MeshData&         GetRenderMeshData(ImportHandle handle) const;
-        const asset_loading::ObjMeshData& GetObjMeshData(ImportHandle handle) const;
+        const assets::ObjMeshData& GetObjMeshData(ImportHandle handle) const;
 
     private:
         struct ImportRecord
         {
-            asset_loading::ObjMeshData source;
+            assets::ObjMeshData source;
             graphics::MeshData         render;
         };
 
-        static graphics::MeshData ConvertToRenderMesh(const asset_loading::ObjMeshData& source_mesh);
+        static graphics::MeshData ConvertToRenderMesh(const assets::ObjMeshData& source_mesh);
 
         const ImportRecord& GetImportRecord(ImportHandle handle) const;
 
@@ -46,6 +46,6 @@ namespace amit::graphics_asset
         std::unordered_map<std::uint64_t, ImportRecord> imports_;
     };
 
-}  // namespace amit::graphics_asset
+}  // namespace amit::assets
 
 #endif

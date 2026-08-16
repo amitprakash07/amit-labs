@@ -3,7 +3,7 @@
 
 #include <cassert>
 
-#include "interface.h"
+#include "sandbox/coding_problems/interface.h"
 
 // Add any helper functions you may need here
 

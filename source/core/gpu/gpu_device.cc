@@ -2,13 +2,13 @@
 
 #include "gpu_device.h"
 
-amit::GpuDevice::GpuDevice(ID3D12Device10* d3d12_device)
+amit::gpu::GpuDevice::GpuDevice(ID3D12Device10* d3d12_device)
     : d3d12_device_(d3d12_device)
 {
     d3d12_device->AddRef();
 }
 
-amit::GpuDevice::~GpuDevice()
+amit::gpu::GpuDevice::~GpuDevice()
 {
     if (!cmd_allocators_map_by_type_.empty())
     {
@@ -43,7 +43,7 @@ amit::GpuDevice::~GpuDevice()
 
 #define DEFINE_SPECIALIZED_CREATE_D3D_DESC(resource_type, resource_ptr_type, resource_desc) \
     template <>                                                                             \
-    amit::GpuDeviceResource<resource_ptr_type>* amit::GpuDevice::Create(const resource_desc& desc)
+    amit::gpu::GpuDeviceResource<resource_ptr_type>* amit::gpu::GpuDevice::Create(const resource_desc& desc)
 
 DEFINE_SPECIALIZED_CREATE_D3D_DESC(CmdQueue, ID3D12CommandQueue, D3D12_COMMAND_QUEUE_DESC)
 {
@@ -101,8 +101,8 @@ DEFINE_SPECIALIZED_CREATE_D3D_DESC(ComputePipeline, ID3D12PipelineState, D3D12_C
 
 #define DEFINE_SPECIALIZED_CREATE(resource_type, resource_ptr_type, resource_desc) \
     template <>                                                                    \
-    amit::GpuDeviceResource<resource_ptr_type>* amit::GpuDevice::Create(       \
-        const amit::GpuDeviceResourceDesc<resource_desc>& desc)
+    amit::gpu::GpuDeviceResource<resource_ptr_type>* amit::gpu::GpuDevice::Create(       \
+        const amit::gpu::GpuDeviceResourceDesc<resource_desc>& desc)
 
 DEFINE_SPECIALIZED_CREATE(CmdList, ID3D12CommandList, GpuCmdListDesc)
 {
@@ -131,7 +131,7 @@ DEFINE_SPECIALIZED_CREATE(CmdList, ID3D12CommandList, GpuCmdListDesc)
                                                        __uuidof(ID3D12CommandList),
                                                        reinterpret_cast<void**>(&cmd_list))))
         {
-            ret_list = new GpuDeviceResContainer<CmdList, ID3D12CommandList, amit::GpuCmdListDesc>(cmd_list, desc);
+            ret_list = new GpuDeviceResContainer<CmdList, ID3D12CommandList, amit::gpu::GpuCmdListDesc>(cmd_list, desc);
             device_resources_map_[CmdList].push_back(ret_list);
         }
     }
@@ -139,7 +139,7 @@ DEFINE_SPECIALIZED_CREATE(CmdList, ID3D12CommandList, GpuCmdListDesc)
     return ret_list;
 }
 
-void amit::GpuDevice::UnitTest()
+void amit::gpu::GpuDevice::UnitTest()
 {
     assert(d3d12_device_ != nullptr);
     GpuDeviceResourceDesc<GpuCmdListDesc> cmd_desc;

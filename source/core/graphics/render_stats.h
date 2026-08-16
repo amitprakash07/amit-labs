@@ -12,6 +12,11 @@
 
 namespace amit::graphics
 {
+    using amit::common::CounterStat;
+    using amit::common::IStatsBucket;
+    using amit::common::StatsCollector;
+    using amit::common::TimerStat;
+
     enum class RenderStatCounter : std::uint8_t
     {
         kRasterizedPixelCount
@@ -88,7 +93,7 @@ namespace amit::graphics
         std::shared_ptr<CounterStat> primitive_counter_;
         std::shared_ptr<CounterStat> rasterized_pixel_counter_;
 
-        friend class amit::StatsCollector;
+        friend class amit::common::StatsCollector;
 
     private:
         DrawCallStats(const std::string& name)

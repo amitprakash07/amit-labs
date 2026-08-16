@@ -6,18 +6,18 @@
 
 namespace amit::geometry
 {
-    class Sphere : public geometry::Primitive
+    class Sphere : public Primitive
     {
     public:
         Sphere(const amit::maths::Vector3& centre, float radius)
-            : Primitive(geometry::PrimitiveType::kSphere)
+            : Primitive(PrimitiveType::kSphere)
             , centre(centre)
             , radius(radius)
         {
         }
 
         Sphere()
-            : Primitive(geometry::PrimitiveType::kSphere)
+            : Primitive(PrimitiveType::kSphere)
             , radius(1.0f)
         {
         }

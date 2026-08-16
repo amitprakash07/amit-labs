@@ -7,7 +7,7 @@
 #include "core/maths/linear_algebra/vector3.h"
 #include "point.h"
 
-namespace amit
+namespace amit::geometry
 {
     class BoundingBox
     {
@@ -25,70 +25,67 @@ namespace amit
         maths::Vector3 max;
     };
 
-    namespace geometry
+    class AxisAlignedBoundingBox
     {
-        class AxisAlignedBoundingBox
+    public:
+        AxisAlignedBoundingBox() = default;
+        AxisAlignedBoundingBox(const Point3D& min, const Point3D& max)
+            : min_(min)
+            , max_(max)
         {
-        public:
-            AxisAlignedBoundingBox() = default;
-            AxisAlignedBoundingBox(const Point3D& min, const Point3D& max)
-                : min_(min)
-                , max_(max)
+        }
+
+        void Expand(const std::vector<Point3D>& points)
+        {
+            for (const auto& point : points)
             {
+                AddToBox(point);
             }
+        }
 
-            void Expand(const std::vector<Point3D>& points)
-            {
-                for (const auto& point : points)
-                {
-                    AddToBox(point);
-                }
-            }
+        bool IsInside(Point3D point) const;
 
-            bool IsInside(Point3D point) const;
+        std::array<Point3D, 4> GetVertices() const
+        {
+            std::array<Point3D, 4> ret_vertices;
+            ret_vertices[0] = Point3D(min_.x, min_.y, min_.z);
+            ret_vertices[1] = Point3D(max_.x, min_.y, min_.z);
+            ret_vertices[2] = Point3D(max_.x, max_.y, min_.z);
+            ret_vertices[3] = Point3D(min_.x, max_.y, min_.z);
+            return ret_vertices;
+        }
 
-            std::array<Point3D, 4> GetVertices() const
-            {
-                std::array<Point3D, 4> ret_vertices;
-                ret_vertices[0] = Point3D(min_.x, min_.y, min_.z);
-                ret_vertices[1] = Point3D(max_.x, min_.y, min_.z);
-                ret_vertices[2] = Point3D(max_.x, max_.y, min_.z);
-                ret_vertices[3] = Point3D(min_.x, max_.y, min_.z);
-                return ret_vertices;
-            }
+        Point3D GetMin() const
+        {
+            return min_;
+        }
 
-            Point3D GetMin() const
-            {
-                return min_;
-            }
+        Point3D GetMax() const
+        {
+            return max_;
+        }
 
-            Point3D GetMax() const
-            {
-                return max_;
-            }
+    private:
+        void AddToBox(const Point3D& point)
+        {
+            min_.x = std::min(min_.x, point.x);
+            min_.y = std::min(min_.y, point.y);
+            min_.z = std::min(min_.z, point.z);
 
-        private:
-            void AddToBox(const Point3D& point)
-            {
-                min_.x = std::min(min_.x, point.x);
-                min_.y = std::min(min_.y, point.y);
-                min_.z = std::min(min_.z, point.z);
+            max_.x = std::max(max_.x, point.x);
+            max_.y = std::max(max_.y, point.y);
+            max_.z = std::max(max_.z, point.z);
+        }
 
-                max_.x = std::max(max_.x, point.x);
-                max_.y = std::max(max_.y, point.y);
-                max_.z = std::max(max_.z, point.z);
-            }
+        Point3D min_{std::numeric_limits<float>::max(),
+                     std::numeric_limits<float>::max(),
+                     std::numeric_limits<float>::max()};
 
-            Point3D min_{std::numeric_limits<float>::max(),
-                         std::numeric_limits<float>::max(),
-                         std::numeric_limits<float>::max()};
+        Point3D max_{std::numeric_limits<float>::lowest(),
+                     std::numeric_limits<float>::lowest(),
+                     std::numeric_limits<float>::lowest()};
+    };
 
-            Point3D max_{std::numeric_limits<float>::lowest(),
-                         std::numeric_limits<float>::lowest(),
-                         std::numeric_limits<float>::lowest()};
-        };
-    }  // namespace geometry
-
-}  // namespace amit
+}  // namespace amit::geometry
 
 #endif

@@ -3,7 +3,7 @@
 
 #include <string>
 
-namespace engine
+namespace amit::common
 {
     template <class DataType, uint32_t initial_size = 100>
     class Stack
@@ -25,7 +25,7 @@ namespace engine
         uint32_t  top_index_;
         bool      empty_;
     };
-}  // namespace engine
+}  // namespace amit::common
 
 #include "stack.inl"
 

@@ -5,7 +5,7 @@
 
 #include "core/maths/linear_algebra/vector3.h"
 
-namespace amit
+namespace amit::graphics
 {
     namespace Physics
     {
@@ -65,6 +65,6 @@ namespace amit
         };
 
     }  // namespace Physics
-}  // namespace engine
+}  // namespace amit::graphics
 
 #endif

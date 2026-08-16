@@ -4,7 +4,7 @@
 #include <stack>
 #include <string>
 
-namespace engine_string_util
+namespace amit::common
 {
     [[nodiscard]] std::string RemoveString(const std::string& remove_from,
                                            const std::string& remove_with,
@@ -34,6 +34,6 @@ namespace engine_string_util
 
     [[nodiscard]] inline std::wstring ToWideString(const std::string& in);
 
-}  // namespace engine_string_util
+}  // namespace amit::common
 
 #endif

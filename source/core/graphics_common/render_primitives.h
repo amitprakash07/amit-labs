@@ -176,8 +176,8 @@ namespace amit::graphics
         }
 
         AttributeSpaceType::Position position;
-        graphics::Rgb8               color;
-        graphics::UVCoordinate       uv;
+        Rgb8               color;
+        UVCoordinate       uv;
     };
 
     template <typename VertexAttributesType>
@@ -236,12 +236,12 @@ namespace amit::graphics
             return point_vertex_;
         }
 
-        ObjectLabel<RenderPrimitiveType> GetObjectLabel() const
+        amit::common::ObjectLabel<RenderPrimitiveType> GetObjectLabel() const
         {
             return object_label_;
         }
 
-        const ObjectId& GetId() const
+        const amit::common::ObjectId& GetId() const
         {
             return object_label_.GetId();
         }
@@ -259,7 +259,7 @@ namespace amit::graphics
 
     private:
         VertexAttributes<PrimitiveAttributeCoordinateSpace> point_vertex_;
-        ObjectLabel<RenderPrimitiveType>                    object_label_;
+        amit::common::ObjectLabel<RenderPrimitiveType>                    object_label_;
     };
 
     template <PrimitiveAttributeCoordinateSpaceConcept PrimitiveAttributeCoordinateSpace>
@@ -301,12 +301,12 @@ namespace amit::graphics
             return end_points_;
         }
 
-        ObjectLabel<RenderPrimitiveType> GetObjectLabel() const
+        amit::common::ObjectLabel<RenderPrimitiveType> GetObjectLabel() const
         {
             return object_label_;
         }
 
-        const ObjectId& GetId() const
+        const amit::common::ObjectId& GetId() const
         {
             return object_label_.GetId();
         }
@@ -326,7 +326,7 @@ namespace amit::graphics
 
     private:
         std::array<VertexAttributes<PrimitiveAttributeCoordinateSpace>, 2> end_points_;
-        ObjectLabel<RenderPrimitiveType>                                   object_label_;
+        amit::common::ObjectLabel<RenderPrimitiveType>                                   object_label_;
     };
 
     template <PrimitiveAttributeCoordinateSpaceConcept PrimitiveAttributeCoordinateSpace>
@@ -382,12 +382,12 @@ namespace amit::graphics
             return vertices_;
         }
 
-        ObjectLabel<RenderPrimitiveType> GetObjectLabel() const
+        amit::common::ObjectLabel<RenderPrimitiveType> GetObjectLabel() const
         {
             return object_label_;
         }
 
-        const ObjectId& GetId() const
+        const amit::common::ObjectId& GetId() const
         {
             return object_label_.GetId();
         }
@@ -409,7 +409,7 @@ namespace amit::graphics
 
     private:
         std::array<VertexAttributes<PrimitiveAttributeCoordinateSpace>, 3> vertices_;
-        ObjectLabel<RenderPrimitiveType>                                   object_label_;
+        amit::common::ObjectLabel<RenderPrimitiveType>                                   object_label_;
     };
 }  // namespace amit::graphics
 

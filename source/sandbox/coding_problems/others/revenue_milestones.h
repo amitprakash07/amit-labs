@@ -25,7 +25,7 @@ Day 6 is the first time that FB has >= $200 of total revenue.
 
 #include <vector>
 
-#include "interface.h"
+#include "sandbox/coding_problems/interface.h"
 
 class RevenueMilestones : public ICodingProblem {
  public:

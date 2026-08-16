@@ -4,7 +4,7 @@
 
 #include "octree.h"
 
-using namespace amit;
+using namespace amit::graphics;
 
 Physics::Octree::Octree()
 {

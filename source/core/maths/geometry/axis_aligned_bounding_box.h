@@ -3,7 +3,7 @@
 
 #include "core/maths/linear_algebra/vector3.h"
 
-namespace amit
+namespace amit::geometry
 {
     namespace Physics
     {
@@ -144,6 +144,6 @@ namespace amit
             return TestAABBPlane(b2, p);
         }
     }  // namespace Physics
-}  // namespace amit
+}  // namespace amit::geometry
 
 #endif

@@ -8,7 +8,7 @@
 #define MAX_CLIENTS 10
 #define SERVER_PORT 60000
 
-namespace Engine
+namespace amit
 {
 	namespace Networking
 	{
@@ -60,14 +60,14 @@ namespace Engine
 
 		struct NetworkPacket
 		{
-			amit::Math::Transform mTransformData;		
+			amit::maths::Transform mTransformData;		
 
 			NetworkPacket()
 			{
-				mTransformData = Math::Transform();
+				mTransformData = amit::maths::Transform();
 			}
 
-			NetworkPacket(Math::Transform iTransform)
+			NetworkPacket(amit::maths::Transform iTransform)
 			{
 				mTransformData = iTransform;
 			}

@@ -6,7 +6,7 @@
 #include "platform.h"
 #include "platform_objects.h"
 
-namespace engine
+namespace amit
 {
     class IPlatformSystem
     {
@@ -253,6 +253,6 @@ namespace engine
         WindowHandle                          main_window_handle_;
         int                                   win_main_display_state_;
     };
-}  // namespace engine
+}  // namespace amit
 
 #endif

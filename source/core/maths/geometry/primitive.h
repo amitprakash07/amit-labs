@@ -19,7 +19,7 @@ namespace amit::geometry
         kSphere
     };
 
-    inline std::string_view EnumTypeToString(amit::geometry::PrimitiveType primitive_type)
+    inline std::string_view EnumTypeToString(PrimitiveType primitive_type)
     {
         switch (primitive_type)
         {
@@ -61,7 +61,7 @@ namespace amit::geometry
             return primitive_type_;
         }
 
-        ObjectLabel<PrimitiveType> GetObjectLabel() const
+        amit::common::ObjectLabel<PrimitiveType> GetObjectLabel() const
         {
             return object_label_;
         }
@@ -75,7 +75,7 @@ namespace amit::geometry
 
         PrimitiveType primitive_type_{PrimitiveType::kUnknown};
 
-        ObjectLabel<PrimitiveType> object_label_;
+        amit::common::ObjectLabel<PrimitiveType> object_label_;
     };
 }  // namespace amit::geometry
 #endif

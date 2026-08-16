@@ -12,7 +12,7 @@
 #include "../EngineCore/Objects/MeshObject.h"
 #include "../Utilities/SharedPointer.h"
 
-namespace engine {
+namespace amit::graphics {
 enum ShapeTarget {
   SPHERE = 0,    // Needs radius,position
   BOX = 1,       // Need Position, length, breadth,height

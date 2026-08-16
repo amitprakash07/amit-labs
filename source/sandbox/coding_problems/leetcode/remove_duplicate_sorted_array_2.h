@@ -9,7 +9,7 @@ nums = {1,2,2,4,5,7,7}, k= 7
 #include <vector>
 #include <iostream>
 
-#include "interface.h"
+#include "sandbox/coding_problems/interface.h"
 
 class RemoveDuplicateSortedArray : public ICodingProblem
 {

@@ -1,5 +1,5 @@
 
-namespace engine
+namespace amit::common
 {
     namespace time
     {
@@ -23,4 +23,4 @@ namespace engine
             return (getTimeDiff(i_startTick, i_endTick));
         }
     }  // namespace time
-}  // namespace engine
+}  // namespace amit::common

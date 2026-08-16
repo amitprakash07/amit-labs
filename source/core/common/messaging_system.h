@@ -8,7 +8,7 @@
 #include "hashed_string.h"
 #include "message_handler_interface.h"
 
-namespace engine
+namespace amit::common
 {
     class MessagingSystem : public RTTI
     {
@@ -34,6 +34,6 @@ namespace engine
         std::map<utils::StringHash, std::vector<MessageHandle>> m_MessageHandlers;
         MessagingSystem();
     };
-}  // namespace engine
+}  // namespace amit::common
 
 #endif

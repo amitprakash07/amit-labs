@@ -7,7 +7,7 @@
 #include "../../Maths/Transform.h"
 #include "../../Utilities/SharedPointer.h"
 
-namespace engine {
+namespace amit::graphics {
 class IObjectController;
 class Object {
  public:

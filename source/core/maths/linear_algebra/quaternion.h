@@ -113,6 +113,6 @@ namespace amit::maths
         void SplitFromScalarVector();
     };
 
-}  // namespace engine
+}  // namespace amit::maths
 
 #endif  // CORE_MATHS_QUATERNION_H_

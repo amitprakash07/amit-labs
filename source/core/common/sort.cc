@@ -5,7 +5,7 @@
 
 #include "util.h"
 
-using namespace engine;
+using namespace amit::common;
 
 template <typename T>
 void Sort::MergeSort(T* o_List, int iListlength, int (*SortFunc)(T i_A, T i_B))
