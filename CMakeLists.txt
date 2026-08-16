@@ -50,6 +50,76 @@ FetchContent_Declare(
     SOURCE_DIR "${PROJECT_EXTERNAL_SOURCE_DIR}/font8x8/")
 FetchContent_MakeAvailable(font8x8)
 
+# SDL3 window/input layer
+set(SDL3_VERSION "release-3.4.12" CACHE STRING "SDL3 version" FORCE)
+set(SDL3_PATH "${PROJECT_EXTERNAL_SOURCE_DIR}/SDL/${SDL3_VERSION}/" CACHE PATH "SDL3 path" FORCE)
+set(SDL_SHARED OFF CACHE BOOL "Build SDL3 shared library" FORCE)
+set(SDL_STATIC ON CACHE BOOL "Build SDL3 static library" FORCE)
+set(SDL_TESTS OFF CACHE BOOL "Build SDL3 tests" FORCE)
+set(SDL_TEST_LIBRARY OFF CACHE BOOL "Build SDL3 test library" FORCE)
+set(SDL_EXAMPLES OFF CACHE BOOL "Build SDL3 examples" FORCE)
+FetchContent_Declare(
+    SDL3
+    GIT_REPOSITORY https://github.com/libsdl-org/SDL.git
+    GIT_TAG ${SDL3_VERSION}
+    SOURCE_DIR ${SDL3_PATH})
+FetchContent_MakeAvailable(SDL3)
+
+foreach(SDL3_GENERATED_TARGET SDL3-static SDL3-shared)
+    if(TARGET ${SDL3_GENERATED_TARGET})
+        set_target_properties(${SDL3_GENERATED_TARGET}
+            PROPERTIES
+            FOLDER "External"
+            VS_SOLUTION_FOLDER "External")
+    endif()
+endforeach()
+
+if(TARGET SDL3::SDL3)
+    set(PROJECT_SDL3_TARGET SDL3::SDL3)
+elseif(TARGET SDL3::SDL3-static)
+    set(PROJECT_SDL3_TARGET SDL3::SDL3-static)
+else()
+    message(FATAL_ERROR "SDL3 target was not created")
+endif()
+
+# Dear ImGui debug UI with SDL3 platform and DX12 renderer backends.
+set(DearImGui_VERSION "v1.92.9" CACHE STRING "Dear ImGui version" FORCE)
+set(DearImGui_PATH "${PROJECT_EXTERNAL_SOURCE_DIR}/dear_imgui/${DearImGui_VERSION}/" CACHE PATH "Dear ImGui path" FORCE)
+FetchContent_Declare(
+    DearImGui
+    GIT_REPOSITORY https://github.com/ocornut/imgui.git
+    GIT_TAG ${DearImGui_VERSION}
+    SOURCE_DIR ${DearImGui_PATH})
+FetchContent_MakeAvailable(DearImGui)
+
+set(DEAR_IMGUI_SOURCES
+    ${dearimgui_SOURCE_DIR}/imgui.cpp
+    ${dearimgui_SOURCE_DIR}/imgui_demo.cpp
+    ${dearimgui_SOURCE_DIR}/imgui_draw.cpp
+    ${dearimgui_SOURCE_DIR}/imgui_tables.cpp
+    ${dearimgui_SOURCE_DIR}/imgui_widgets.cpp
+    ${dearimgui_SOURCE_DIR}/backends/imgui_impl_sdl3.cpp)
+
+if(WIN32)
+    list(APPEND DEAR_IMGUI_SOURCES ${dearimgui_SOURCE_DIR}/backends/imgui_impl_dx12.cpp)
+endif()
+
+add_library(dear_imgui STATIC ${DEAR_IMGUI_SOURCES})
+target_include_directories(dear_imgui
+    PUBLIC
+        ${dearimgui_SOURCE_DIR}
+        ${dearimgui_SOURCE_DIR}/backends)
+target_link_libraries(dear_imgui PUBLIC ${PROJECT_SDL3_TARGET})
+
+if(WIN32)
+    target_link_libraries(dear_imgui PUBLIC d3d12.dll dxgi.dll)
+endif()
+
+set_target_properties(dear_imgui
+    PROPERTIES
+    FOLDER "External"
+    VS_SOLUTION_FOLDER "External")
+
 
 add_compile_definitions(ASSET_DIR="${PROJECT_DATA_DIR}")
 

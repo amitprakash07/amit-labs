@@ -11,4 +11,6 @@ external/agility_sdk/
 external/dxc_compiler/
 external/json_parser/
 external/font8x8/
+external/SDL/
+external/dear_imgui/
 data/data_science_mit/
