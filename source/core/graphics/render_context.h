@@ -97,6 +97,11 @@ namespace amit::graphics
 
         RenderState() = delete;
 
+        void Clear()
+        {
+            depth_buffer_.FillImage(std::numeric_limits<float>::infinity());
+        }
+
         float GetDepth(const ImageCoordinate& image_coordinate) const
         {
             return depth_buffer_.GetImageData(image_coordinate);

@@ -64,6 +64,16 @@ namespace amit::graphics
             return stream.str();
         }
 
+        void Reset()
+        {
+            draw_call_count_        = 0;
+            vertex_count_           = 0;
+            index_count_            = 0;
+            primitive_count_        = 0;
+            rasterized_pixel_count_ = 0;
+            total_draw_duration_ms_ = 0.0;
+        }
+
     private:
         std::int64_t draw_call_count_         = 0;
         std::int64_t vertex_count_            = 0;

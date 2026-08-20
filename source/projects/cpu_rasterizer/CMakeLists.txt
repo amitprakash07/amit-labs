@@ -11,9 +11,9 @@ set(CPU_RASTERIZER_SOURCES
 include_directories(${PROJECT_SRC_DIR})
 add_executable(${PROJECT_NAME} ${CPU_RASTERIZER_SOURCES})
 
-target_link_libraries(${PROJECT_NAME} PRIVATE core)
+target_link_libraries(${PROJECT_NAME} PRIVATE core sdl_windowing)
 
-add_dependencies(${PROJECT_NAME} core)
+add_dependencies(${PROJECT_NAME} core sdl_windowing)
 
 set_target_properties(${PROJECT_NAME} PROPERTIES DEBUG_POSTFIX ${CMAKE_DEBUG_POSTFIX})
 set_target_properties(${PROJECT_NAME} PROPERTIES FOLDER "Projects"
