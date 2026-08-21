@@ -82,7 +82,7 @@ else()
     message(FATAL_ERROR "SDL3 target was not created")
 endif()
 
-# Dear ImGui debug UI with SDL3 platform and DX12 renderer backends.
+# Dear ImGui debug UI with SDL3 platform + SDL_Renderer backends (CPU present path).
 set(DearImGui_VERSION "v1.92.9" CACHE STRING "Dear ImGui version" FORCE)
 set(DearImGui_PATH "${PROJECT_EXTERNAL_SOURCE_DIR}/dear_imgui/${DearImGui_VERSION}/" CACHE PATH "Dear ImGui path" FORCE)
 FetchContent_Declare(
@@ -98,11 +98,8 @@ set(DEAR_IMGUI_SOURCES
     ${dearimgui_SOURCE_DIR}/imgui_draw.cpp
     ${dearimgui_SOURCE_DIR}/imgui_tables.cpp
     ${dearimgui_SOURCE_DIR}/imgui_widgets.cpp
-    ${dearimgui_SOURCE_DIR}/backends/imgui_impl_sdl3.cpp)
-
-if(WIN32)
-    list(APPEND DEAR_IMGUI_SOURCES ${dearimgui_SOURCE_DIR}/backends/imgui_impl_dx12.cpp)
-endif()
+    ${dearimgui_SOURCE_DIR}/backends/imgui_impl_sdl3.cpp
+    ${dearimgui_SOURCE_DIR}/backends/imgui_impl_sdlrenderer3.cpp)
 
 add_library(dear_imgui STATIC ${DEAR_IMGUI_SOURCES})
 target_include_directories(dear_imgui
@@ -110,10 +107,6 @@ target_include_directories(dear_imgui
         ${dearimgui_SOURCE_DIR}
         ${dearimgui_SOURCE_DIR}/backends)
 target_link_libraries(dear_imgui PUBLIC ${PROJECT_SDL3_TARGET})
-
-if(WIN32)
-    target_link_libraries(dear_imgui PUBLIC d3d12.dll dxgi.dll)
-endif()
 
 set_target_properties(dear_imgui
     PROPERTIES

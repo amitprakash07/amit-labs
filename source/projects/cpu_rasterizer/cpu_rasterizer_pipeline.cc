@@ -5,8 +5,10 @@
 
 #include "cpu_rasterizer_pipeline.h"
 
+#include "core/common/settings_registry.h"
 #include "core/common/perf_stats.h"
 #include "core/sdl_windowing/color_buffer_window.h"
+#include "core/sdl_windowing/output_path.h"
 #include "core/cpu_renderer/rasterizer.h"
 #include "core/graphics/image_2d.h"
 #include "core/graphics/image_generator.h"
@@ -366,7 +368,15 @@ namespace amit::cpu_rasterizer
                                                        .scale                  = maths::Vector3{1.0f, 1.0f, 1.0f}};
 
         graphics::ColorBuffer& color_buffer = render_output.GetColorBuffer();
-        bool                   wrote_ppm    = false;
+
+        float                          move_speed = 2.5f;
+        std::string                    frame_stats_text;
+        std::string                    save_status_text;
+        bool                           request_save_ppm = false;
+        app_settings::SettingsRegistry settings_registry;
+        settings_registry.AddFloat("Move Speed", &move_speed, 0.1f, 20.0f);
+
+        constexpr int kExportStatsPanelWidth = 320;
 
         auto rasterize_scene = [&]() {
             render_frame.GetRenderState().Clear();
@@ -392,13 +402,42 @@ namespace amit::cpu_rasterizer
                                               color_shader);
             }
 
-            const std::string overlay_stats = render_frame.GetRenderFrameStats().ToOverlayString();
-            graphics::TextOverlay::Render(overlay_stats, 10, 20, graphics::kRgb8ColorWhite, color_buffer);
+            frame_stats_text = render_frame.GetRenderFrameStats().ToOverlayString();
+        };
+
+        auto save_color_buffer_with_stats_panel = [&]() {
+            const int scene_width  = static_cast<int>(color_buffer.GetWidth().value);
+            const int scene_height = static_cast<int>(color_buffer.GetHeight().value);
+
+            graphics::ColorBuffer export_buffer({.value = static_cast<std::uint32_t>(scene_width + kExportStatsPanelWidth)},
+                                                {.value = static_cast<std::uint32_t>(scene_height)});
+            export_buffer.FillImage(graphics::kRgb8ColorBlack);
+
+            for (int y = 0; y < scene_height; ++y)
+            {
+                for (int x = 0; x < scene_width; ++x)
+                {
+                    export_buffer.SetImageData(
+                        graphics::ImageCoordinate{static_cast<std::uint32_t>(x), static_cast<std::uint32_t>(y)},
+                        color_buffer.GetImageData(
+                            graphics::ImageCoordinate{static_cast<std::uint32_t>(x), static_cast<std::uint32_t>(y)}));
+                }
+            }
+
+            graphics::TextOverlay::Render(frame_stats_text,
+                                          static_cast<std::uint16_t>(scene_width + 10),
+                                          20,
+                                          graphics::kRgb8ColorWhite,
+                                          export_buffer);
+
+            const std::string ppm_path = sdl_windowing::MakeOutputFilePath("obj_cornell_box_scene_output.ppm");
+            graphics::WriteColorBufferToPPM(export_buffer, ppm_path.c_str());
+            save_status_text = std::string("Saved ") + ppm_path + " (scene + stats panel)";
+            std::cout << save_status_text << '\n';
         };
 
         auto update_and_render = [&](const sdl_windowing::InteractiveInput& input) {
-            const float move_speed = 2.5f;
-            const float step       = move_speed * input.dt_seconds;
+            const float step = move_speed * input.dt_seconds;
 
             const maths::Vector3 forward = (camera_view.look_at - camera_view.position).CreateNormalized();
             const maths::Vector3 right   = forward.Cross(camera_view.up).CreateNormalized();
@@ -430,32 +469,45 @@ namespace amit::cpu_rasterizer
                 delta -= up * step;
             }
 
-            const bool moving = input.move_forward || input.move_backward || input.move_left || input.move_right ||
-                                input.move_up || input.move_down;
-            if (moving)
-            {
-                camera_view.position += delta;
-                camera_view.look_at += delta;
-                std::printf("cam pos=(%.2f, %.2f, %.2f) dt=%.3f\n",
-                            camera_view.position.x(),
-                            camera_view.position.y(),
-                            camera_view.position.z(),
-                            input.dt_seconds);
-            }
+            camera_view.position += delta;
+            camera_view.look_at += delta;
 
             rasterize_scene();
 
-            if (!wrote_ppm)
+            if (request_save_ppm)
             {
-                graphics::WriteColorBufferToPPM(color_buffer, "obj_cornell_box_scene_output.ppm");
-                std::cout << "Color buffer saved to disk\n";
-                wrote_ppm = true;
+                save_color_buffer_with_stats_panel();
+                request_save_ppm = false;
             }
 
             return true;
         };
 
-        sdl_windowing::RunInteractiveColorBufferLoop(color_buffer, "CPU Rasterizer - Cornell Box OBJ", update_and_render);
+        // Output panel shows live stats; append last save message when present.
+        std::string output_panel_text;
+        auto        refresh_output_text = [&]() {
+            output_panel_text = frame_stats_text;
+            if (!save_status_text.empty())
+            {
+                output_panel_text += "\n\n";
+                output_panel_text += save_status_text;
+            }
+        };
+
+        auto update_and_render_with_output = [&](const sdl_windowing::InteractiveInput& input) {
+            const bool ok = update_and_render(input);
+            refresh_output_text();
+            return ok;
+        };
+
+        sdl_windowing::InteractiveUiState ui_state{.settings_registry = &settings_registry,
+                                                   .output_text       = &output_panel_text,
+                                                   .request_save_ppm  = &request_save_ppm,
+                                                   .action_status     = &save_status_text,
+                                                   .sidebar_width_px  = 320};
+
+        sdl_windowing::RunInteractiveColorBufferLoop(
+            color_buffer, "CPU Rasterizer - Cornell Box OBJ", update_and_render_with_output, &ui_state);
 
         if (draw_options.ShouldCollectDetailedDrawStats())
         {

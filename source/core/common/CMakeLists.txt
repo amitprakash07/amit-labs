@@ -11,7 +11,8 @@ set(CORE_SHARED_CORE_SRC  ${CMAKE_CURRENT_LIST_DIR}/additional_types.h
                             ${CMAKE_CURRENT_LIST_DIR}/rtti.h
                             ${CMAKE_CURRENT_LIST_DIR}/rtti.cc
                             ${CMAKE_CURRENT_LIST_DIR}/defs.h
-                            ${CMAKE_CURRENT_LIST_DIR}/core.h)
+                            ${CMAKE_CURRENT_LIST_DIR}/core.h
+                            ${CMAKE_CURRENT_LIST_DIR}/settings_registry.h)
 source_group(Core FILES ${CORE_SHARED_CORE_SRC})
 
 set(CORE_SHARED_ALLOCATION    ${CMAKE_CURRENT_LIST_DIR}/shared_pointer.h

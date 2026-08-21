@@ -6,13 +6,19 @@ message("Processing ${CORE_PROJECT_NAME} - ${CMAKE_CURRENT_LIST_DIR}")
 
 set(CORE_SDL_WINDOWING_SOURCES
     color_buffer_window.h
-    color_buffer_window.cc)
+    color_buffer_window.cc
+    output_path.h
+    output_path.cc
+    settings_panel.h
+    settings_panel.cc)
 
 add_library(${CORE_PROJECT_NAME} ${CORE_SDL_WINDOWING_SOURCES})
 
 target_link_libraries(${CORE_PROJECT_NAME}
     PUBLIC
         graphics
+        common
+        dear_imgui
         ${PROJECT_SDL3_TARGET})
 
 set_target_properties(${CORE_PROJECT_NAME}

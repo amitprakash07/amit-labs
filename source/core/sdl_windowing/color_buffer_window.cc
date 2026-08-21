@@ -1,9 +1,15 @@
 #include "core/sdl_windowing/color_buffer_window.h"
 
+#include "core/sdl_windowing/output_path.h"
+#include "core/sdl_windowing/settings_panel.h"
+
 #include <cstdint>
 #include <cstdio>
 #include <cstring>
 
+#include <imgui.h>
+#include <imgui_impl_sdl3.h>
+#include <imgui_impl_sdlrenderer3.h>
 #include <SDL3/SDL.h>
 
 namespace amit::sdl_windowing
@@ -12,17 +18,17 @@ namespace amit::sdl_windowing
     {
         struct HeldKeys
         {
-            bool key_w         = false;
-            bool key_s         = false;
-            bool key_a         = false;
-            bool key_d         = false;
-            bool key_up        = false;
-            bool key_down      = false;
-            bool key_left      = false;
-            bool key_right     = false;
-            bool key_e         = false;
-            bool key_q         = false;
-            bool key_escape    = false;
+            bool key_w      = false;
+            bool key_s      = false;
+            bool key_a      = false;
+            bool key_d      = false;
+            bool key_up     = false;
+            bool key_down   = false;
+            bool key_left   = false;
+            bool key_right  = false;
+            bool key_e      = false;
+            bool key_q      = false;
+            bool key_escape = false;
 
             bool MoveForward() const
             {
@@ -96,8 +102,10 @@ namespace amit::sdl_windowing
             }
         }
 
-        bool CreateSdlPresentSurface(int            width,
-                                     int            height,
+        bool CreateSdlPresentSurface(int            window_width,
+                                     int            window_height,
+                                     int            texture_width,
+                                     int            texture_height,
                                      const char*    window_title,
                                      SDL_Window**   out_window,
                                      SDL_Renderer** out_renderer,
@@ -110,8 +118,8 @@ namespace amit::sdl_windowing
             }
 
             if (!SDL_CreateWindowAndRenderer(window_title != nullptr ? window_title : "amit-labs",
-                                             width,
-                                             height,
+                                             window_width,
+                                             window_height,
                                              0,
                                              out_window,
                                              out_renderer))
@@ -121,10 +129,8 @@ namespace amit::sdl_windowing
                 return false;
             }
 
-            // STREAMING + LockTexture is the path meant for per-frame CPU uploads.
-            // UpdateTexture on a STREAMING texture is unreliable on some backends.
-            *out_texture =
-                SDL_CreateTexture(*out_renderer, SDL_PIXELFORMAT_RGB24, SDL_TEXTUREACCESS_STREAMING, width, height);
+            *out_texture = SDL_CreateTexture(
+                *out_renderer, SDL_PIXELFORMAT_RGB24, SDL_TEXTUREACCESS_STREAMING, texture_width, texture_height);
             if (*out_texture == nullptr)
             {
                 std::fprintf(stderr, "SDL_CreateTexture failed: %s\n", SDL_GetError());
@@ -156,10 +162,10 @@ namespace amit::sdl_windowing
             SDL_Quit();
         }
 
-        bool PresentColorBuffer(SDL_Renderer* renderer, SDL_Texture* texture, const graphics::ColorBuffer& color_buffer)
+        bool BlitColorBufferToTexture(SDL_Texture* texture, const graphics::ColorBuffer& color_buffer)
         {
-            const int width  = static_cast<int>(color_buffer.GetWidth().value);
-            const int height = static_cast<int>(color_buffer.GetHeight().value);
+            const int width     = static_cast<int>(color_buffer.GetWidth().value);
+            const int height    = static_cast<int>(color_buffer.GetHeight().value);
             const int src_pitch = width * static_cast<int>(sizeof(graphics::Rgb8));
 
             void* dst_pixels = nullptr;
@@ -187,6 +193,15 @@ namespace amit::sdl_windowing
             }
 
             SDL_UnlockTexture(texture);
+            return true;
+        }
+
+        bool PresentColorBuffer(SDL_Renderer* renderer, SDL_Texture* texture, const graphics::ColorBuffer& color_buffer)
+        {
+            if (!BlitColorBufferToTexture(texture, color_buffer))
+            {
+                return false;
+            }
 
             SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
             SDL_RenderClear(renderer);
@@ -195,18 +210,69 @@ namespace amit::sdl_windowing
             return true;
         }
 
-        InteractiveInput MakeInteractiveInput(float dt_seconds, bool window_quit, const HeldKeys& held)
+        InteractiveInput MakeInteractiveInput(float          dt_seconds,
+                                              bool           window_quit,
+                                              const HeldKeys& held,
+                                              bool           allow_movement_keys)
         {
-            return InteractiveInput{
-                .dt_seconds    = dt_seconds,
-                .move_forward  = held.MoveForward(),
-                .move_backward = held.MoveBackward(),
-                .move_left     = held.MoveLeft(),
-                .move_right    = held.MoveRight(),
-                .move_up       = held.MoveUp(),
-                .move_down     = held.MoveDown(),
-                .quit          = window_quit || held.Quit(),
-            };
+            InteractiveInput input{.dt_seconds = dt_seconds, .quit = window_quit || held.Quit()};
+            if (allow_movement_keys)
+            {
+                input.move_forward  = held.MoveForward();
+                input.move_backward = held.MoveBackward();
+                input.move_left     = held.MoveLeft();
+                input.move_right    = held.MoveRight();
+                input.move_up       = held.MoveUp();
+                input.move_down     = held.MoveDown();
+            }
+            return input;
+        }
+
+        bool InitImGuiForSdlRenderer(SDL_Window* window, SDL_Renderer* renderer)
+        {
+            IMGUI_CHECKVERSION();
+            ImGui::CreateContext();
+            ImGui::StyleColorsDark();
+
+            if (!ImGui_ImplSDL3_InitForSDLRenderer(window, renderer))
+            {
+                std::fprintf(stderr, "ImGui_ImplSDL3_InitForSDLRenderer failed\n");
+                ImGui::DestroyContext();
+                return false;
+            }
+            if (!ImGui_ImplSDLRenderer3_Init(renderer))
+            {
+                std::fprintf(stderr, "ImGui_ImplSDLRenderer3_Init failed\n");
+                ImGui_ImplSDL3_Shutdown();
+                ImGui::DestroyContext();
+                return false;
+            }
+            return true;
+        }
+
+        void ShutdownImGui()
+        {
+            ImGui_ImplSDLRenderer3_Shutdown();
+            ImGui_ImplSDL3_Shutdown();
+            ImGui::DestroyContext();
+        }
+
+        bool SaveWindowScreenshot(SDL_Renderer* renderer, const char* filename)
+        {
+            SDL_Surface* surface = SDL_RenderReadPixels(renderer, nullptr);
+            if (surface == nullptr)
+            {
+                std::fprintf(stderr, "SDL_RenderReadPixels failed: %s\n", SDL_GetError());
+                return false;
+            }
+
+            const bool ok = SDL_SaveBMP(surface, filename);
+            if (!ok)
+            {
+                std::fprintf(stderr, "SDL_SaveBMP failed: %s\n", SDL_GetError());
+            }
+            SDL_DestroySurface(surface);
+            return ok;
         }
     }  // namespace
 
@@ -225,7 +291,7 @@ namespace amit::sdl_windowing
         SDL_Window*   window   = nullptr;
         SDL_Renderer* renderer = nullptr;
         SDL_Texture*  texture  = nullptr;
-        if (!CreateSdlPresentSurface(width, height, window_title, &window, &renderer, &texture))
+        if (!CreateSdlPresentSurface(width, height, width, height, window_title, &window, &renderer, &texture))
         {
             return false;
         }
@@ -263,32 +329,50 @@ namespace amit::sdl_windowing
 
     bool RunInteractiveColorBufferLoop(graphics::ColorBuffer&                              color_buffer,
                                        const char*                                         window_title,
-                                       const std::function<bool(const InteractiveInput&)>& update_and_render)
+                                       const std::function<bool(const InteractiveInput&)>& update_and_render,
+                                       InteractiveUiState*                                 ui_state)
     {
         static_assert(sizeof(graphics::Rgb8) == 3, "Rgb8 must be tightly packed RGB24 for SDL texture upload");
 
-        const int width  = static_cast<int>(color_buffer.GetWidth().value);
-        const int height = static_cast<int>(color_buffer.GetHeight().value);
-        if (width <= 0 || height <= 0 || color_buffer.GetData() == nullptr)
+        const int framebuffer_width  = static_cast<int>(color_buffer.GetWidth().value);
+        const int framebuffer_height = static_cast<int>(color_buffer.GetHeight().value);
+        if (framebuffer_width <= 0 || framebuffer_height <= 0 || color_buffer.GetData() == nullptr)
         {
             std::fprintf(stderr, "RunInteractiveColorBufferLoop: empty color buffer\n");
             return false;
         }
 
+        const int sidebar_width =
+            (ui_state != nullptr && ui_state->sidebar_width_px > 0) ? ui_state->sidebar_width_px : 320;
+        const int window_width = framebuffer_width + sidebar_width;
+
         SDL_Window*   window   = nullptr;
         SDL_Renderer* renderer = nullptr;
         SDL_Texture*  texture  = nullptr;
-        if (!CreateSdlPresentSurface(width, height, window_title, &window, &renderer, &texture))
+        if (!CreateSdlPresentSurface(window_width,
+                                     framebuffer_height,
+                                     framebuffer_width,
+                                     framebuffer_height,
+                                     window_title,
+                                     &window,
+                                     &renderer,
+                                     &texture))
         {
+            return false;
+        }
+
+        if (!InitImGuiForSdlRenderer(window, renderer))
+        {
+            DestroySdlPresentSurface(window, renderer, texture);
             return false;
         }
 
         std::printf("Interactive SDL loop — click the window, then WASD/arrows move, Q/E down/up, Esc to quit.\n");
 
         HeldKeys held{};
-        bool     running       = true;
-        bool     has_focus     = true;
-        Uint64   last_ticks_ns = SDL_GetTicksNS();
+        bool     running                  = true;
+        bool     request_save_screenshot  = false;
+        Uint64   last_ticks_ns            = SDL_GetTicksNS();
 
         while (running)
         {
@@ -296,17 +380,15 @@ namespace amit::sdl_windowing
             SDL_Event event;
             while (SDL_PollEvent(&event))
             {
+                ImGui_ImplSDL3_ProcessEvent(&event);
+
                 switch (event.type)
                 {
                 case SDL_EVENT_QUIT:
                     window_quit = true;
                     break;
-                case SDL_EVENT_WINDOW_FOCUS_GAINED:
-                    has_focus = true;
-                    break;
                 case SDL_EVENT_WINDOW_FOCUS_LOST:
-                    has_focus = false;
-                    held      = {};
+                    held = {};
                     break;
                 case SDL_EVENT_KEY_DOWN:
                     ApplyKeyEvent(held, event.key, true);
@@ -323,26 +405,82 @@ namespace amit::sdl_windowing
             const float  dt_seconds   = static_cast<float>(now_ticks_ns - last_ticks_ns) / 1'000'000'000.0f;
             last_ticks_ns             = now_ticks_ns;
 
-            const InteractiveInput input = MakeInteractiveInput(dt_seconds, window_quit, held);
-            if (!has_focus && (input.move_forward || input.move_backward || input.move_left || input.move_right ||
-                               input.move_up || input.move_down))
+            ImGui_ImplSDLRenderer3_NewFrame();
+            ImGui_ImplSDL3_NewFrame();
+            ImGui::NewFrame();
+
+            const bool allow_movement_keys = !ImGui::GetIO().WantCaptureKeyboard;
+            if (!allow_movement_keys)
             {
-                // Keys should already be cleared on focus loss; keep this as a guard.
+                held.key_w = held.key_s = held.key_a = held.key_d = false;
+                held.key_up = held.key_down = held.key_left = held.key_right = false;
+                held.key_e = held.key_q = false;
             }
 
+            const InteractiveInput input = MakeInteractiveInput(dt_seconds, window_quit, held, allow_movement_keys);
             if (input.quit || !update_and_render(input))
             {
                 running = false;
+                ImGui::EndFrame();
                 break;
             }
 
-            if (!PresentColorBuffer(renderer, texture, color_buffer))
+            if (!BlitColorBufferToTexture(texture, color_buffer))
             {
+                ShutdownImGui();
                 DestroySdlPresentSurface(window, renderer, texture);
                 return false;
             }
+
+            const app_settings::SettingsRegistry* settings =
+                ui_state != nullptr ? ui_state->settings_registry : nullptr;
+            const std::string* output_text = ui_state != nullptr ? ui_state->output_text : nullptr;
+            bool* request_save_ppm = ui_state != nullptr ? ui_state->request_save_ppm : nullptr;
+            DrawSidePanels(framebuffer_width,
+                           framebuffer_height,
+                           sidebar_width,
+                           settings,
+                           output_text,
+                           request_save_ppm,
+                           &request_save_screenshot);
+
+            ImGui::Render();
+
+            SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
+            SDL_RenderClear(renderer);
+
+            const SDL_FRect framebuffer_dst{0.0f,
+                                            0.0f,
+                                            static_cast<float>(framebuffer_width),
+                                            static_cast<float>(framebuffer_height)};
+            SDL_RenderTexture(renderer, texture, nullptr, &framebuffer_dst);
+
+            ImGui_ImplSDLRenderer3_RenderDrawData(ImGui::GetDrawData(), renderer);
+
+            if (request_save_screenshot)
+            {
+                constexpr const char* kScreenshotFilename = "window_screenshot.bmp";
+                const std::string     screenshot_path     = MakeOutputFilePath(kScreenshotFilename);
+                if (SaveWindowScreenshot(renderer, screenshot_path.c_str()))
+                {
+                    std::printf("Saved %s (full window including ImGui)\n", screenshot_path.c_str());
+                    if (ui_state != nullptr && ui_state->action_status != nullptr)
+                    {
+                        *ui_state->action_status =
+                            std::string("Saved ") + screenshot_path + " (full window including ImGui)";
+                    }
+                }
+                else if (ui_state != nullptr && ui_state->action_status != nullptr)
+                {
+                    *ui_state->action_status = "Screenshot save failed";
+                }
+                request_save_screenshot = false;
+            }
+
+            SDL_RenderPresent(renderer);
         }
 
+        ShutdownImGui();
         DestroySdlPresentSurface(window, renderer, texture);
         return true;
     }
